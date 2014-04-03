@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@import GLKit; @import AVFoundation; @import CoreVideo;
+@import GLKit; @import AVFoundation; @import CoreVideo; @import Accelerate;
 
 @interface MSViewController : UIViewController<AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate> {
     AVCaptureSession *avCaptureSession;
@@ -22,7 +22,7 @@
     AVCaptureDeviceInput *videoIn;
     
     BOOL hasOverlay;
-    
+    BOOL update;
 }
 
 @property (nonatomic, strong) AVCaptureDevice *device;

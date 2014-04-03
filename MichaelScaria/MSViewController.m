@@ -8,8 +8,12 @@
 
 #import "MSViewController.h"
 
-@interface MSViewController ()
 
+#define BLACK_THRESHOLD 45
+static inline double radians (double degrees) {return degrees * M_PI/180;}
+
+@interface MSViewController ()
+@property (readwrite) CMVideoCodecType videoType;
 @end
 
 @implementation MSViewController
@@ -59,6 +63,9 @@
     maskImage = [CIImage imageWithCGImage:cgImg];
     CGImageRelease(cgImg);
     
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, .75 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        update = YES;
+    });
     
     
     /*UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(takePicture)];
@@ -94,6 +101,127 @@
     CGColorSpaceRelease(colorSpace);
 }
 
+
+
+#pragma mark Capture
+
+- (unsigned char*) rotateBuffer: (CMSampleBufferRef) sampleBuffer
+{
+    CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+    CVPixelBufferLockBaseAddress(imageBuffer,0);
+    
+    size_t bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
+    size_t width = CVPixelBufferGetWidth(imageBuffer);
+    size_t height = CVPixelBufferGetHeight(imageBuffer);
+    size_t currSize = bytesPerRow*height*sizeof(unsigned char);
+    size_t bytesPerRowOut = 4*height*sizeof(unsigned char);
+    
+    void *srcBuff = CVPixelBufferGetBaseAddress(imageBuffer);
+    
+    /*
+     * rotationConstant:   0 -- rotate 0 degrees (simply copy the data from src to dest)
+     *             1 -- rotate 90 degrees counterclockwise
+     *             2 -- rotate 180 degress
+     *             3 -- rotate 270 degrees counterclockwise
+     */
+    uint8_t rotationConstant = 3;
+    
+    unsigned char *outBuff = (unsigned char*)malloc(currSize);
+    
+    vImage_Buffer ibuff = { srcBuff, height, width, bytesPerRow};
+    vImage_Buffer ubuff = { outBuff, width, height, bytesPerRowOut};
+    Pixel_8888 backgroundColor = {0,0,0,0} ;
+    vImage_Error err= vImageRotate90_ARGB8888 (&ibuff, &ubuff,rotationConstant, backgroundColor, kvImageNoFlags);
+    if (err != kvImageNoError) NSLog(@"%ld", err);
+    
+    return outBuff;
+}
+
+-(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
+    
+    CMFormatDescriptionRef formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer);
+    
+    if (update) {
+        update = NO;
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+            for (UIView *subview in _overlayView.subviews) {
+                [subview removeFromSuperview];
+            }
+            update = YES;
+        });
+        CVPixelBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+        
+        
+        CVReturn lock = CVPixelBufferLockBaseAddress(pixelBuffer, 0);
+        if (lock == kCVReturnSuccess) {
+            unsigned long w = 0;
+            unsigned long h = 0;
+            unsigned long r = 0;
+            unsigned long bytesPerPixel = 0;
+            unsigned char *buffer;
+            //switch
+            h = CVPixelBufferGetWidth(pixelBuffer);
+            w = CVPixelBufferGetHeight(pixelBuffer);
+            r = CVPixelBufferGetBytesPerRow(pixelBuffer);
+            bytesPerPixel = r/h;
+            buffer = [self rotateBuffer:sampleBuffer];
+            UIGraphicsBeginImageContext(CGSizeMake(w, h));
+            CGContextRef c = UIGraphicsGetCurrentContext();
+            unsigned char* data = CGBitmapContextGetData(c);
+            NSLog(@"bytesPerPixel:%lu", bytesPerPixel);
+            if (data != NULL) {
+                
+                for (int y = 0; y < h - 4; y++) {
+                    for (int x = 0; x < w - 4; x++) {
+                        unsigned long offset = bytesPerPixel*((w*y)+x);
+//                        offset +=2;
+                        if (buffer[offset] < BLACK_THRESHOLD &&  buffer[offset+1] < BLACK_THRESHOLD &&  buffer[offset+2] < BLACK_THRESHOLD) {
+                            data[offset] = 255;
+                            data[offset + 1] = 170;
+                            data[offset + 2] = 220;
+                            data[offset + 3] = 255;
+
+                        }
+                        else {
+                            data[offset] = 0;
+                            data[offset + 1] = 0;
+                            data[offset + 2] = 0;
+                            data[offset + 3] = 0;
+                        }
+                    }
+                }
+                CGContextRotateCTM (c, radians(-90));
+                UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+                UIGraphicsEndImageContext();
+                UIImageView *imageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
+                imageView.image = img;
+                [_cameraView addSubview:imageView];
+                
+            }
+            
+        }
+    }
+    
+    if (connection == videoConnection) {
+        if (self.videoType == 0) self.videoType = CMFormatDescriptionGetMediaSubType( formatDescription );
+        CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
+        CIImage *image = [CIImage imageWithCVPixelBuffer:pixelBuffer];
+        if (hasOverlay && NO) {
+            CIFilter *filter = [CIFilter filterWithName:@"CIGaussianBlur"];
+            [filter setValue:image forKey:kCIInputImageKey]; [filter setValue:@18.0f forKey:@"inputRadius"];
+            image = [filter valueForKey:kCIOutputImageKey];
+        }
+        CGAffineTransform transform = CGAffineTransformMakeRotation(-M_PI_2);
+        image = [image imageByApplyingTransform:transform];
+        
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [coreImageContext drawImage:image inRect:CGRectMake(0, 0, screenSize.width*2, screenSize.height*2) fromRect:CGRectMake(0, -1280, 720, 1280)];
+            [self.context presentRenderbuffer:GL_RENDERBUFFER];
+        });
+    }
+    
+}
 
 
 
