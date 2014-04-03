@@ -1,0 +1,34 @@
+//
+//  MSViewController.h
+//  MichaelScaria
+//
+//  Created by Michael Scaria on 4/3/14.
+//  Copyright (c) 2014 michaelscaria. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@import GLKit; @import AVFoundation; @import CoreVideo;
+
+@interface MSViewController : UIViewController<AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate> {
+    AVCaptureSession *avCaptureSession;
+    CIContext *coreImageContext;
+    CIImage *maskImage;
+    CGSize screenSize;
+    CGContextRef cgContext;
+    GLuint _renderBuffer;
+    
+    AVCaptureConnection *videoConnection;
+    AVCaptureDeviceInput *videoIn;
+    
+    BOOL hasOverlay;
+    
+}
+
+@property (nonatomic, strong) AVCaptureDevice *device;
+@property (strong, nonatomic) EAGLContext *context;
+
+@property (strong, nonatomic) IBOutlet GLKView *cameraView;
+@property (strong, nonatomic) IBOutlet UIView *overlayView;
+
+@end
