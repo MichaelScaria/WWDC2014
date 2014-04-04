@@ -491,6 +491,7 @@
 				9E07CD6618EE2509005CAD84 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		9E07CD6718EE2509005CAD84 /* Build configuration list for PBXNativeTarget "MichaelScariaTests" */ = {
 			isa = XCConfigurationList;
@@ -499,6 +500,7 @@
 				9E07CD6918EE2509005CAD84 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

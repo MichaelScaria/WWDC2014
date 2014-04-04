@@ -190,20 +190,20 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
                         if (!notBlack) {
                             if (!keyFound) keyFound = YES;
                             keyLength++;
-                            if (y < h/1.2 && x < w/4.0) {
+                            if (y < h/2) {
                                 data[offset] = 50;
                                 data[offset + 1] = 0;
                                 data[offset + 2] = 60;
                                 data[offset + 3] = 255; //alpha //56,4,255 why do we need to do the offset? BUG
 
                             }
-//                            else {
-//                                data[offset] = red;
-//                                data[offset + 1] = green;
-//                                data[offset + 2] = blue;
-//                                data[offset + 3] = 255; //alpha //56,4,255 why do we need to do the offset? BUG
-//
-//                            }
+                            else {
+                                data[offset] = red;
+                                data[offset + 1] = green;
+                                data[offset + 2] = blue;
+                                data[offset + 3] = 255; //alpha //56,4,255 why do we need to do the offset? BUG
+
+                            }
                             
                         }
                         else if (keyFound) {
