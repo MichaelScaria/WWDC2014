@@ -160,18 +160,18 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
             int red = 52; int green = 170; int blue = 220;
             unsigned long bytesPerPixel = 0;
             unsigned char *buffer;
-            /*switch
+            //switch
             h = CVPixelBufferGetWidth(pixelBuffer);
             w = CVPixelBufferGetHeight(pixelBuffer);
             r = CVPixelBufferGetBytesPerRow(pixelBuffer);
             bytesPerPixel = r/h;
-            buffer = [self rotateBuffer:sampleBuffer];*/
-            w = CVPixelBufferGetWidth(pixelBuffer);
-            h = CVPixelBufferGetHeight(pixelBuffer);
-            r = CVPixelBufferGetBytesPerRow(pixelBuffer);
-            bytesPerPixel = r/w;
-            buffer = CVPixelBufferGetBaseAddress(pixelBuffer);
-//            buffer = [self rotateBuffer:sampleBuffer];
+            buffer = [self rotateBuffer:sampleBuffer];
+            
+//            w = CVPixelBufferGetWidth(pixelBuffer);
+//            h = CVPixelBufferGetHeight(pixelBuffer);
+//            r = CVPixelBufferGetBytesPerRow(pixelBuffer);
+//            bytesPerPixel = r/w;
+//            buffer = CVPixelBufferGetBaseAddress(pixelBuffer);
             UIGraphicsBeginImageContext(CGSizeMake(w, h));
             CGContextRef c = UIGraphicsGetCurrentContext();
             unsigned char* data = CGBitmapContextGetData(c);
@@ -190,20 +190,20 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
                         if (!notBlack) {
                             if (!keyFound) keyFound = YES;
                             keyLength++;
-                            if (y < h/2) {
+                            if (y < h/1.2 && x < w/4.0) {
                                 data[offset] = 50;
                                 data[offset + 1] = 0;
                                 data[offset + 2] = 60;
                                 data[offset + 3] = 255; //alpha //56,4,255 why do we need to do the offset? BUG
 
                             }
-                            else {
-                                data[offset] = red;
-                                data[offset + 1] = green;
-                                data[offset + 2] = blue;
-                                data[offset + 3] = 255; //alpha //56,4,255 why do we need to do the offset? BUG
-
-                            }
+//                            else {
+//                                data[offset] = red;
+//                                data[offset + 1] = green;
+//                                data[offset + 2] = blue;
+//                                data[offset + 3] = 255; //alpha //56,4,255 why do we need to do the offset? BUG
+//
+//                            }
                             
                         }
                         else if (keyFound) {
