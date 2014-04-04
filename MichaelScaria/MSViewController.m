@@ -9,7 +9,7 @@
 #import "MSViewController.h"
 
 
-#define BLACK_THRESHOLD 45
+#define BLACK_THRESHOLD 35
 static inline double radians (double degrees) {return degrees * M_PI/180;}
 
 @interface MSViewController ()
@@ -143,7 +143,7 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
     
     if (update) {
         update = NO;
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
             for (UIView *subview in _overlayView.subviews) {
                 [subview removeFromSuperview];
             }
@@ -153,6 +153,8 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
         
         
         CVReturn lock = CVPixelBufferLockBaseAddress(pixelBuffer, 0);
+        NSMutableArray *circles = [[NSMutableArray alloc] init];
+        NSMutableArray *origins = [[NSMutableArray alloc] init];
         if (lock == kCVReturnSuccess) {
             unsigned long w = 0;
             unsigned long h = 0;
@@ -164,6 +166,7 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
             w = CVPixelBufferGetHeight(pixelBuffer);
             r = CVPixelBufferGetBytesPerRow(pixelBuffer);
             bytesPerPixel = r/h;
+            //            buffer = CVPixelBufferGetBaseAddress(pixelBuffer);
             buffer = [self rotateBuffer:sampleBuffer];
             UIGraphicsBeginImageContext(CGSizeMake(w, h));
             CGContextRef c = UIGraphicsGetCurrentContext();
@@ -171,46 +174,50 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
             NSLog(@"bytesPerPixel:%lu", bytesPerPixel);
             if (data != NULL) {
                 
-                for (int y = 0; y < h - 4; y++) {
-                    for (int x = 0; x < w - 4; x++) {
+                for (int y = 0; y < h; y++) {
+                    for (int x = 0; x < w; x++) {
                         unsigned long offset = bytesPerPixel*((w*y)+x);
-//                        offset +=2;
-                        if (buffer[offset] < BLACK_THRESHOLD &&  buffer[offset+1] < BLACK_THRESHOLD &&  buffer[offset+2] < BLACK_THRESHOLD) {
-                            data[offset] = 255;
+//                        NSLog(@"r:%d g:%d b:%d a:%f", buffer[offset], buffer[offset+1], buffer[offset+2], buffer[offset+3]/255.0);
+                        BOOL testPercent = (buffer[offset] > BLACK_THRESHOLD &&  buffer[offset+1] > BLACK_THRESHOLD &&  buffer[offset+2] > BLACK_THRESHOLD);
+                        offset +=2;
+                        if (!testPercent) {
+                            data[offset] = 52;
                             data[offset + 1] = 170;
                             data[offset + 2] = 220;
-                            data[offset + 3] = 255;
+                            data[offset + 3] = 255; //alpha //56,4,25
 
-                        }
-                        else {
-                            data[offset] = 0;
-                            data[offset + 1] = 0;
-                            data[offset + 2] = 0;
-                            data[offset + 3] = 0;
                         }
                     }
                 }
-                CGContextRotateCTM (c, radians(-90));
-                UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
-                UIGraphicsEndImageContext();
-                UIImageView *imageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
-                imageView.image = img;
-                [_cameraView addSubview:imageView];
+                
                 
             }
+            CGContextRotateCTM (c, radians(-90));
+            UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+            
+            UIGraphicsEndImageContext();
+            
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+                UIImageView *imageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
+                imageView.image = img;
+                [_overlayView addSubview:imageView];
+
+            });
             
         }
+        
+        
     }
     
     if (connection == videoConnection) {
         if (self.videoType == 0) self.videoType = CMFormatDescriptionGetMediaSubType( formatDescription );
         CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
         CIImage *image = [CIImage imageWithCVPixelBuffer:pixelBuffer];
-        if (hasOverlay && NO) {
-            CIFilter *filter = [CIFilter filterWithName:@"CIGaussianBlur"];
-            [filter setValue:image forKey:kCIInputImageKey]; [filter setValue:@18.0f forKey:@"inputRadius"];
-            image = [filter valueForKey:kCIOutputImageKey];
-        }
+        //        if (hasOverlay && NO) {
+        //            CIFilter *filter = [CIFilter filterWithName:@"CIGaussianBlur"];
+        //            [filter setValue:image forKey:kCIInputImageKey]; [filter setValue:@22.0f forKey:@"inputRadius"];
+        //            image = [filter valueForKey:kCIOutputImageKey];
+        //        }
         CGAffineTransform transform = CGAffineTransformMakeRotation(-M_PI_2);
         image = [image imageByApplyingTransform:transform];
         
@@ -223,6 +230,10 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
     
 }
 
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    NSLog(@"didReceiveMemoryWarning");
+}
 
 
 @end
