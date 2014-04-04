@@ -143,7 +143,7 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
     
     if (update) {
         update = NO;
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
             for (UIView *subview in _overlayView.subviews) {
                 [subview removeFromSuperview];
             }
@@ -153,50 +153,73 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
         
         
         CVReturn lock = CVPixelBufferLockBaseAddress(pixelBuffer, 0);
-        NSMutableArray *circles = [[NSMutableArray alloc] init];
-        NSMutableArray *origins = [[NSMutableArray alloc] init];
         if (lock == kCVReturnSuccess) {
             unsigned long w = 0;
             unsigned long h = 0;
             unsigned long r = 0;
+            int red = 52; int green = 170; int blue = 220;
             unsigned long bytesPerPixel = 0;
             unsigned char *buffer;
-            //switch
+            /*switch
             h = CVPixelBufferGetWidth(pixelBuffer);
             w = CVPixelBufferGetHeight(pixelBuffer);
             r = CVPixelBufferGetBytesPerRow(pixelBuffer);
             bytesPerPixel = r/h;
-            buffer = [self rotateBuffer:sampleBuffer];
+            buffer = [self rotateBuffer:sampleBuffer];*/
+            w = CVPixelBufferGetWidth(pixelBuffer);
+            h = CVPixelBufferGetHeight(pixelBuffer);
+            r = CVPixelBufferGetBytesPerRow(pixelBuffer);
+            bytesPerPixel = r/w;
+            buffer = CVPixelBufferGetBaseAddress(pixelBuffer);
+//            buffer = [self rotateBuffer:sampleBuffer];
             UIGraphicsBeginImageContext(CGSizeMake(w, h));
             CGContextRef c = UIGraphicsGetCurrentContext();
             unsigned char* data = CGBitmapContextGetData(c);
             NSLog(@"bytesPerPixel:%lu", bytesPerPixel);
+            int final = 0;
             if (data != NULL) {
                 
-                for (int y = 0; y < h; y++) {
-                    BOOL keyFound = NO;
-                    for (int x = 0; x < w; x++) {
+                for (int y = 0; y < h - 8; y++) {
+                    BOOL keyFound = NO; int keyLength = 0;
+                    for (int x = 0; x < w - 8; x++) {
                         unsigned long offset = bytesPerPixel*((w*y)+x);
 //                        NSLog(@"r:%d g:%d b:%d a:%f", buffer[offset], buffer[offset+1], buffer[offset+2], buffer[offset+3]/255.0);
+//                        NSLog(@"%lu | %hhu", offset, buffer[offset + 1]);
                         BOOL notBlack = (buffer[offset] > BLACK_THRESHOLD &&  buffer[offset+1] > BLACK_THRESHOLD &&  buffer[offset+2] > BLACK_THRESHOLD);
                         offset +=2;
                         if (!notBlack) {
-                            if (keyFound) {
-                                <#statements#>
-                            }
-                            keyFound = YES;
-                            data[offset] = 52;
-                            data[offset + 1] = 170;
-                            data[offset + 2] = 220;
-                            data[offset + 3] = 255; //alpha //56,4,25
+                            if (!keyFound) keyFound = YES;
+                            keyLength++;
+                            if (y < h/2) {
+                                data[offset] = 50;
+                                data[offset + 1] = 0;
+                                data[offset + 2] = 60;
+                                data[offset + 3] = 255; //alpha //56,4,255 why do we need to do the offset? BUG
 
+                            }
+                            else {
+                                data[offset] = red;
+                                data[offset + 1] = green;
+                                data[offset + 2] = blue;
+                                data[offset + 3] = 255; //alpha //56,4,255 why do we need to do the offset? BUG
+
+                            }
+                            
+                        }
+                        else if (keyFound) {
+                            keyFound = NO;
+                            if (keyLength > 30) {
+                                final++;
+//                                red = (red + 20) % 255; green = (green + 20) % 255; blue = (blue + 20) % 255;
+                            }
                         }
                     }
                 }
                 
                 
             }
-            CGContextRotateCTM (c, radians(-90));
+//            CGContextRotateCTM (c, radians(-90));
+//             CGContextRotateCTM (c, radians(90));
             UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
             
             UIGraphicsEndImageContext();
@@ -205,7 +228,7 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
                 UIImageView *imageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
                 imageView.image = img;
                 [_overlayView addSubview:imageView];
-
+                NSLog(@"final:%d", final);
             });
             
         }
