@@ -166,7 +166,6 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
             w = CVPixelBufferGetHeight(pixelBuffer);
             r = CVPixelBufferGetBytesPerRow(pixelBuffer);
             bytesPerPixel = r/h;
-            //            buffer = CVPixelBufferGetBaseAddress(pixelBuffer);
             buffer = [self rotateBuffer:sampleBuffer];
             UIGraphicsBeginImageContext(CGSizeMake(w, h));
             CGContextRef c = UIGraphicsGetCurrentContext();
@@ -175,12 +174,17 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
             if (data != NULL) {
                 
                 for (int y = 0; y < h; y++) {
+                    BOOL keyFound = NO;
                     for (int x = 0; x < w; x++) {
                         unsigned long offset = bytesPerPixel*((w*y)+x);
 //                        NSLog(@"r:%d g:%d b:%d a:%f", buffer[offset], buffer[offset+1], buffer[offset+2], buffer[offset+3]/255.0);
-                        BOOL testPercent = (buffer[offset] > BLACK_THRESHOLD &&  buffer[offset+1] > BLACK_THRESHOLD &&  buffer[offset+2] > BLACK_THRESHOLD);
+                        BOOL notBlack = (buffer[offset] > BLACK_THRESHOLD &&  buffer[offset+1] > BLACK_THRESHOLD &&  buffer[offset+2] > BLACK_THRESHOLD);
                         offset +=2;
-                        if (!testPercent) {
+                        if (!notBlack) {
+                            if (keyFound) {
+                                <#statements#>
+                            }
+                            keyFound = YES;
                             data[offset] = 52;
                             data[offset + 1] = 170;
                             data[offset + 2] = 220;
