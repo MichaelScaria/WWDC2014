@@ -137,6 +137,8 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
     return outBuff;
 }
 
+
+
 -(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
     
     CMFormatDescriptionRef formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer);
@@ -178,39 +180,64 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
             NSLog(@"bytesPerPixel:%lu", bytesPerPixel);
             int final = 0;
             if (data != NULL) {
-                
                 for (int y = 0; y < h - 8; y++) {
-                    BOOL keyFound = NO; int keyLength = 0;
+                    BOOL keyFound = NO; int xAxisKeyLength = 0;
                     for (int x = 0; x < w - 8; x++) {
                         unsigned long offset = bytesPerPixel*((w*y)+x);
 //                        NSLog(@"r:%d g:%d b:%d a:%f", buffer[offset], buffer[offset+1], buffer[offset+2], buffer[offset+3]/255.0);
 //                        NSLog(@"%lu | %hhu", offset, buffer[offset + 1]);
                         BOOL notBlack = (buffer[offset] > BLACK_THRESHOLD &&  buffer[offset+1] > BLACK_THRESHOLD &&  buffer[offset+2] > BLACK_THRESHOLD);
                         offset +=2;
-                        if (!notBlack) {
+                        if (!notBlack) { //if black
                             if (!keyFound) keyFound = YES;
-                            keyLength++;
-                            if (y < h/2) {
-                                data[offset] = 50;
-                                data[offset + 1] = 0;
-                                data[offset + 2] = 60;
-                                data[offset + 3] = 255; //alpha //56,4,255 why do we need to do the offset? BUG
-
-                            }
-                            else {
-                                data[offset] = red;
-                                data[offset + 1] = green;
-                                data[offset + 2] = blue;
-                                data[offset + 3] = 255; //alpha //56,4,255 why do we need to do the offset? BUG
-
-                            }
+                            xAxisKeyLength++;
+//                            data[offset] = red;
+//                            data[offset + 1] = green;
+//                            data[offset + 2] = blue;
+//                            data[offset + 3] = 255; //alpha //56,4,255 why do we need to do the offset? BUG
                             
                         }
                         else if (keyFound) {
                             keyFound = NO;
-                            if (keyLength > 30) {
-                                final++;
-//                                red = (red + 20) % 255; green = (green + 20) % 255; blue = (blue + 20) % 255;
+                            int threshold = 150;
+                            if (xAxisKeyLength > threshold) {
+                                int leftAnchor = x - xAxisKeyLength;
+                                BOOL verticalStreak = YES;
+                                int yPlaceholder = y;
+                                int verticalLength = 0;
+                                while (verticalStreak) {
+                                    unsigned long keyOffset = bytesPerPixel*((w*yPlaceholder)+leftAnchor); //start traversing down the key
+                                    if (keyOffset > bytesPerPixel*((w*(h - 8))+(w - 8))) {
+                                        //past buffer memory, end streak
+                                        verticalStreak = NO;
+                                    }
+                                    else {
+                                        BOOL notBlack = (buffer[keyOffset] > BLACK_THRESHOLD &&  buffer[keyOffset+1] > BLACK_THRESHOLD &&  buffer[keyOffset+2] > BLACK_THRESHOLD);
+                                        if (!notBlack) { //is black
+                                            verticalLength++;
+                                            yPlaceholder++;
+                                        }
+                                        else {
+                                            verticalStreak = NO;
+                                        }
+                                    }
+                                }
+                                
+                                if (verticalLength > threshold) {
+                                    final++;
+                                    NSLog(@"%d and %d", verticalLength, x - leftAnchor);
+                                    for (int topRowOfKey = y; topRowOfKey < y + verticalLength; topRowOfKey++) {
+                                        for (int xOffset = leftAnchor; xOffset < x; xOffset++) {
+                                            unsigned long bufferReplaceOffset = bytesPerPixel*((w*topRowOfKey)+xOffset);
+                                            data[bufferReplaceOffset] = red;
+                                            data[bufferReplaceOffset + 1] = green;
+                                            data[bufferReplaceOffset + 2] = blue;
+                                            data[bufferReplaceOffset + 3] = 255; //alpha //56,4,255 why do we need to do the offset? BUG
+                                        }
+                                    }
+                                }
+                                
+                                
                             }
                         }
                     }
