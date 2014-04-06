@@ -9,7 +9,7 @@
 #import "MSViewController.h"
 
 
-#define BLACK_THRESHOLD 35
+#define BLACK_THRESHOLD 40
 static inline double radians (double degrees) {return degrees * M_PI/180;}
 
 @interface MSViewController ()
@@ -141,9 +141,15 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
 
 -(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
     
+    
+    if (!update) return;
+    update = NO;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, .8 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        update = YES;
+    });
+    
     CMFormatDescriptionRef formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer);
     
-    unsigned char *buffer;
 
     CVPixelBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
     
@@ -153,12 +159,17 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
         unsigned long w = 0; unsigned long h = 0; unsigned long r = 0;
         int red = 52; int green = 170; int blue = 220;
         unsigned long bytesPerPixel = 0;
-//            unsigned char *buffer;
-        //switch
-        h = CVPixelBufferGetWidth(pixelBuffer); w = CVPixelBufferGetHeight(pixelBuffer); r = CVPixelBufferGetBytesPerRow(pixelBuffer);
-        bytesPerPixel = r/h;
-        buffer = [self rotateBuffer:sampleBuffer];
         unsigned char *buffer;
+        //switch
+//        h = CVPixelBufferGetWidth(pixelBuffer); w = CVPixelBufferGetHeight(pixelBuffer); r = CVPixelBufferGetBytesPerRow(pixelBuffer);
+//        bytesPerPixel = r/h;
+//        buffer = [self rotateBuffer:sampleBuffer];
+
+        w = CVPixelBufferGetWidth(pixelBuffer);
+        h = CVPixelBufferGetHeight(pixelBuffer);
+        r = CVPixelBufferGetBytesPerRow(pixelBuffer);
+        bytesPerPixel = r/w;
+        buffer = CVPixelBufferGetBaseAddress(pixelBuffer);
 
         UIGraphicsBeginImageContext(CGSizeMake(w, h));
         CGContextRef c = UIGraphicsGetCurrentContext();
@@ -173,9 +184,13 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
                     unsigned long offset = bytesPerPixel*((w*y)+x);
                     BOOL notBlack = (buffer[offset] > BLACK_THRESHOLD &&  buffer[offset+1] > BLACK_THRESHOLD &&  buffer[offset+2] > BLACK_THRESHOLD);
                     offset +=2;
-                    if (!notBlack || YES) { //if black
+                    if (!notBlack) { //if black
                         if (!keyFound) keyFound = YES;
                         xAxisKeyLength++;
+//                        buffer[offset] = 235;
+//                        buffer[offset + 1] = 225;
+//                        buffer[offset + 2] = 255;
+//                        buffer[offset + 3] = 255;
                     }
                     else if (keyFound) {
                         keyFound = NO;
@@ -186,13 +201,14 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
                                     //
                                     unsigned long tempOffset = bytesPerPixel*((w*yt)+xt);
                                     if (tempOffset < bytesPerPixel*((w*(h - 8))+(w - 8))) {
-                                        buffer[tempOffset] = 235;
-                                        buffer[tempOffset + 1] = 225;
-                                        buffer[tempOffset + 2] = 255;
+                                        buffer[tempOffset] = 240;
+                                        buffer[tempOffset + 1] = 185;
+                                        buffer[tempOffset + 2] = 155;
                                         buffer[tempOffset + 3] = 255;
                                     }
                                 }
                             }
+                            break;
 
                             
                         }
@@ -204,20 +220,25 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
         }
         if (connection == videoConnection) {
             if (self.videoType == 0) self.videoType = CMFormatDescriptionGetMediaSubType( formatDescription );
-            CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
-//                CIImage *image = [CIImage imageWithCVPixelBuffer:pixelBuffer];
-            //        CGColorSpaceRef colorSpaceToUse = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+//            CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
+//            CIImage *image = [CIImage imageWithCVPixelBuffer:pixelBuffer];
             CGColorSpaceRef colorSpaceRGB = CGColorSpaceCreateDeviceRGB();
-            NSData *_pixelsData = [NSData dataWithBytesNoCopy:buffer length:(sizeof(unsigned char)*bytesPerPixel*w*h) freeWhenDone:YES ];
+            NSData *_pixelsData = [NSData dataWithBytesNoCopy:buffer length:(sizeof(unsigned char)*bytesPerPixel*w*h) freeWhenDone:NO ];
             CIImage *image = [[CIImage alloc] initWithBitmapData:_pixelsData bytesPerRow:(w*bytesPerPixel*sizeof(unsigned char)) size:CGSizeMake(w,h) format:kCIFormatARGB8 colorSpace:colorSpaceRGB];
+            
+//            NSData *_pixelsData = [NSData dataWithBytesNoCopy:buffer length:(sizeof(unsigned char)*bytesPerPixel*w*h) freeWhenDone:YES ];
+//            CIImage *image = [[CIImage alloc] initWithBitmapData:_pixelsData bytesPerRow:(w*bytesPerPixel*sizeof(unsigned char)) size:CGSizeMake(h,w) format:kCIFormatARGB8 colorSpace:colorSpaceRGB];
+            
+            
+            
             CGColorSpaceRelease(colorSpaceRGB);
 //                if (hasOverlay && NO) {
 //                    CIFilter *filter = [CIFilter filterWithName:@"CIGaussianBlur"];
 //                    [filter setValue:image forKey:kCIInputImageKey]; [filter setValue:@22.0f forKey:@"inputRadius"];
 //                    image = [filter valueForKey:kCIOutputImageKey];
 //                }
-//                CGAffineTransform transform = CGAffineTransformMakeRotation(-M_PI_2);
-//                image = [image imageByApplyingTransform:transform];
+                CGAffineTransform transform = CGAffineTransformMakeRotation(-M_PI_2);
+                image = [image imageByApplyingTransform:transform];
             
             
             dispatch_async(dispatch_get_main_queue(), ^{
