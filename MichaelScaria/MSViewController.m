@@ -143,6 +143,8 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
     
     CMFormatDescriptionRef formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer);
     
+    if (!update) return;
+    unsigned char *buffer;
     if (update) {
         update = NO;
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
@@ -161,13 +163,14 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
             unsigned long r = 0;
             int red = 52; int green = 170; int blue = 220;
             unsigned long bytesPerPixel = 0;
-            unsigned char *buffer;
+//            unsigned char *buffer;
             //switch
             h = CVPixelBufferGetWidth(pixelBuffer);
             w = CVPixelBufferGetHeight(pixelBuffer);
             r = CVPixelBufferGetBytesPerRow(pixelBuffer);
             bytesPerPixel = r/h;
             buffer = [self rotateBuffer:sampleBuffer];
+            unsigned char *buffer;
             
 //            w = CVPixelBufferGetWidth(pixelBuffer);
 //            h = CVPixelBufferGetHeight(pixelBuffer);
@@ -181,36 +184,54 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
             int final = 0;
             if (data != NULL) {
                 
-//                for (int y = 0; y < h - 8; y++) {
-                for (int y = 0; y < 1; y++) {
+                for (int y = 0; y < h - 8; y++) {
                     BOOL keyFound = NO; int xAxisKeyLength = 0;
-                    for (int x = 0; x < w - 8; /*x++*/ x+=40) {
-                        unsigned long offset = bytesPerPixel*((w*y)+x);
-                        while (offset < bytesPerPixel*((w*(h - 8))+(w - 8))) {
-                            data[offset] = red;
-                            data[offset + 1] = green;
-                            data[offset + 2] = blue;
-                            data[offset + 3] = 255;
-                            offset += bytesPerPixel*w;
-                        }
+                    for (int x = 0; x < w - 8; x++) {
 //                        unsigned long offset = bytesPerPixel*((w*y)+x);
+//                        while (offset < bytesPerPixel*((w*(h - 8))+(w - 8))) {
+//                            data[offset] = red;
+//                            data[offset + 1] = green;
+//                            data[offset + 2] = blue;
+//                            data[offset + 3] = 255;
+//                            offset += bytesPerPixel*w;
+//                        }
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        unsigned long offset = bytesPerPixel*((w*y)+x);
 //                        NSLog(@"r:%d g:%d b:%d a:%f", buffer[offset], buffer[offset+1], buffer[offset+2], buffer[offset+3]/255.0);
 //                        NSLog(@"%lu | %hhu", offset, buffer[offset + 1]);
-//                        BOOL notBlack = (buffer[offset] > BLACK_THRESHOLD &&  buffer[offset+1] > BLACK_THRESHOLD &&  buffer[offset+2] > BLACK_THRESHOLD);
-//                        offset +=2;
-//                        if (!notBlack || YES) { //if black
-//                            if (!keyFound) keyFound = YES;
-//                            xAxisKeyLength++;
+                        BOOL notBlack = (buffer[offset] > BLACK_THRESHOLD &&  buffer[offset+1] > BLACK_THRESHOLD &&  buffer[offset+2] > BLACK_THRESHOLD);
+                        offset +=2;
+                        if (!notBlack || YES) { //if black
+                            if (!keyFound) keyFound = YES;
+                            xAxisKeyLength++;
 //                            data[offset] = red;
 //                            data[offset + 1] = green;
 //                            data[offset + 2] = blue;
 //                            data[offset + 3] = 255; //alpha //56,4,255 why do we need to do the offset? BUG
-//                            
-//                        }
-//                        else if (keyFound) {
-//                            keyFound = NO;
-//                            int threshold = 150;
-//                            if (xAxisKeyLength > threshold) {
+                            
+                        }
+                        else if (keyFound) {
+                            keyFound = NO;
+                            int threshold = 100;
+                            if (xAxisKeyLength > threshold) {
+                                for (int yt = y; yt < y + xAxisKeyLength; yt++) {
+                                    for (int xt = x- xAxisKeyLength; xt < x; xt++) {
+                                        //
+                                        unsigned long tempOffset = bytesPerPixel*((w*yt)+xt);
+                                        if (tempOffset < bytesPerPixel*((w*(h - 8))+(w - 8))) {
+                                            buffer[tempOffset] = 235;
+                                            buffer[tempOffset + 1] = 225;
+                                            buffer[tempOffset + 2] = 255;
+                                            buffer[tempOffset + 3] = 255;
+                                        }
+                                    }
+                                }
 //                                int leftAnchor = x - xAxisKeyLength;
                                 /*BOOL verticalStreak = YES;
                                 int yPlaceholder = y;
@@ -248,8 +269,8 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
                                 }
                                 */
                                 
-//                            }
-//                        }
+                            }
+                        }
                     }
                 }
                 
@@ -276,7 +297,10 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
     if (connection == videoConnection) {
         if (self.videoType == 0) self.videoType = CMFormatDescriptionGetMediaSubType( formatDescription );
         CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
-        CIImage *image = [CIImage imageWithCVPixelBuffer:pixelBuffer];
+//        CIImage *image = [CIImage imageWithCVPixelBuffer:pixelBuffer];
+//        CGColorSpaceRef colorSpaceToUse = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+        NSData *_pixelsData = [NSData dataWithBytesNoCopy:buffer length:(sizeof(unsigned char)*4*Image.Width*Image.Height) freeWhenDone:YES ];
+        CIImage *_dataCIImage = [[[CIImage alloc] initWithBitmapData:_pixelsData bytesPerRow:(Image.Width*4*sizeof(unsigned char)) size:CGSizeMake(Image.Width,Image.Height) format:kCIFormatARGB8 colorSpace:colorSpaceToUse] autorelease];
         //        if (hasOverlay && NO) {
         //            CIFilter *filter = [CIFilter filterWithName:@"CIGaussianBlur"];
         //            [filter setValue:image forKey:kCIInputImageKey]; [filter setValue:@22.0f forKey:@"inputRadius"];
