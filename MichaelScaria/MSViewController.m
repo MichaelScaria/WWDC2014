@@ -181,26 +181,69 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
 //        UIGraphicsBeginImageContext(CGSizeMake(w, h));
 //        CGContextRef c = UIGraphicsGetCurrentContext();
 //        unsigned char* data = CGBitmapContextGetData(c);
-        int final = 0;
         if (buffer != NULL) {
+            
             for (int y = 0; y < h - 8; y++) {
-//                BOOL keyFound = NO; int xAxisKeyLength = 0;
+                BOOL keyFound = NO; int xAxisKeyLength = 0;
                 for (int x = 0; x < w - 8; x++) {
                     unsigned long offset = bytesPerPixel*((w*y)+x);
-                    if (BLACK_PIXEL(buffer, offset)) { //is black
-                        buffer[offset] = 240;
-                        buffer[offset + 1] = 185;
-                        buffer[offset + 2] = 155;
-                        buffer[offset + 3] = 255;
-                    }
-//                    else {
-//                        //this is where the letter should be
-//                        buffer[offset] = red;
-//                        buffer[offset + 1] = green;
-//                        buffer[offset + 2] = blue;
-//                        buffer[offset + 3] = 255;
-//                    }
+                    offset +=2;
+                    if (BLACK_PIXEL(buffer, offset)) { //if black
+                        if (!keyFound) keyFound = YES;
+                        xAxisKeyLength++;
 
+                    }
+                    else if (keyFound) {
+                        keyFound = NO;
+                        int threshold = 75;
+                        if (xAxisKeyLength > threshold) {
+
+                            
+                            int leftAnchor = x - xAxisKeyLength;
+                            BOOL verticalStreak = YES;
+                            int yPlaceholder = y;
+                            while (verticalStreak) {
+                                unsigned long keyOffset = bytesPerPixel*((w*yPlaceholder)+leftAnchor); //start traversing down the key
+                                if (keyOffset > bytesPerPixel*((w*(h - 8))+(w - 8))) {
+                                    //past buffer memory, end streak
+                                    verticalStreak = NO;
+                                }
+                                else {
+                                    if (BLACK_PIXEL(buffer, keyOffset)) { //is black
+                                        yPlaceholder++;
+                                    }
+                                    else {
+                                        verticalStreak = NO;
+                                    }
+                                }
+                            }
+                            int verticalLength = yPlaceholder - y;
+                            
+                            if (verticalLength > threshold) {
+                                
+                                for (int topRowOfKey = y; topRowOfKey < y + verticalLength; topRowOfKey++) {
+                                    for (int xOffset = leftAnchor; xOffset < x; xOffset++) {
+                                        if (BLACK_PIXEL(buffer, offset)) { //if black
+                                            unsigned long bufferReplaceOffset = bytesPerPixel*((w*topRowOfKey)+xOffset);
+                                            if (BLACK_PIXEL(buffer, bufferReplaceOffset)) {
+                                                buffer[bufferReplaceOffset] = 240;
+                                                buffer[bufferReplaceOffset + 1] = 185;
+                                                buffer[bufferReplaceOffset + 2] = 155;
+                                                buffer[bufferReplaceOffset + 3] = 255;
+                                            }
+                                            
+                                        }
+                                    }
+                                }
+                                
+                                
+                                
+                        
+                            }
+                            
+                            
+                        }
+                    }
                 }
             }
             
