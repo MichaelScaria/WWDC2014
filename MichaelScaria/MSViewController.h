@@ -23,6 +23,8 @@
     
     BOOL hasOverlay;
     BOOL update;
+    float time;
+    NSArray *currentLetterData;
 }
 
 @property (nonatomic, strong) AVCaptureDevice *device;

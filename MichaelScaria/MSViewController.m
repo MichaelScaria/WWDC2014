@@ -9,7 +9,16 @@
 #import "MSViewController.h"
 
 
-#define BLACK_THRESHOLD 40
+#define BLACK_THRESHOLD 60
+#define WHITE_THRESHOLD 252
+#define PERCENT_ERROR 0.06
+
+
+static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {return !(buffer[offset] > BLACK_THRESHOLD &&  buffer[offset+1] > BLACK_THRESHOLD &&  buffer[offset+2] > BLACK_THRESHOLD);}
+static inline BOOL WHITE_PIXEL (unsigned char *buffer,  unsigned long offset) { return (buffer[offset] > WHITE_THRESHOLD &&  buffer[offset+1] > WHITE_THRESHOLD &&  buffer[offset+2] > WHITE_THRESHOLD);}
+//incase there is light directly on the pixel
+static inline BOOL BLACK_LIGHTED_PIXEL (unsigned char *buffer,  unsigned long offset) {return BLACK_PIXEL(buffer, offset) || WHITE_PIXEL(buffer, offset);}
+
 static inline double radians (double degrees) {return degrees * M_PI/180;}
 
 @interface MSViewController ()
@@ -25,6 +34,11 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    NSString *filePath = [[NSBundle mainBundle] pathForResource:@"m" ofType:@"json"];
+    NSData *data = [NSData dataWithContentsOfFile:filePath];
+    currentLetterData = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:nil];
+    currentLetterData = @[currentLetterData[1]];
+    time = .5;
     hasOverlay = YES;
 	self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
     if (!self.context) {
@@ -144,7 +158,7 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
     
     if (!update) return;
     update = NO;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, .8 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
         update = YES;
     });
     
@@ -174,7 +188,6 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
         UIGraphicsBeginImageContext(CGSizeMake(w, h));
         CGContextRef c = UIGraphicsGetCurrentContext();
         unsigned char* data = CGBitmapContextGetData(c);
-        NSLog(@"bytesPerPixel:%lu", bytesPerPixel);
         int final = 0;
         if (data != NULL) {
             
@@ -182,9 +195,9 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
                 BOOL keyFound = NO; int xAxisKeyLength = 0;
                 for (int x = 0; x < w - 8; x++) {
                     unsigned long offset = bytesPerPixel*((w*y)+x);
-                    BOOL notBlack = (buffer[offset] > BLACK_THRESHOLD &&  buffer[offset+1] > BLACK_THRESHOLD &&  buffer[offset+2] > BLACK_THRESHOLD);
+//                    BOOL notBlack = (buffer[offset] > BLACK_THRESHOLD &&  buffer[offset+1] > BLACK_THRESHOLD &&  buffer[offset+2] > BLACK_THRESHOLD);
                     offset +=2;
-                    if (!notBlack) { //if black
+                    if (BLACK_LIGHTED_PIXEL(buffer, offset)) { //if black
                         if (!keyFound) keyFound = YES;
                         xAxisKeyLength++;
 //                        buffer[offset] = 235;
@@ -194,9 +207,11 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
                     }
                     else if (keyFound) {
                         keyFound = NO;
-                        int threshold = 100;
+                        int threshold = 70;
+                        int maxThreshold = 150;
                         if (xAxisKeyLength > threshold) {
-                            for (int yt = y; yt < y + xAxisKeyLength; yt++) {
+                            xAxisKeyLength = MIN(xAxisKeyLength, maxThreshold);
+                            /*for (int yt = y; yt < y + xAxisKeyLength; yt++) {
                                 for (int xt = x- xAxisKeyLength; xt < x; xt++) {
                                     //
                                     unsigned long tempOffset = bytesPerPixel*((w*yt)+xt);
@@ -207,8 +222,97 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
                                         buffer[tempOffset + 3] = 255;
                                     }
                                 }
+                            }*/
+                            
+                            int leftAnchor = x - xAxisKeyLength;
+                            BOOL verticalStreak = YES;
+                            int yPlaceholder = y;
+                            while (verticalStreak) {
+                                unsigned long keyOffset = bytesPerPixel*((w*yPlaceholder)+leftAnchor); //start traversing down the key
+                                if (keyOffset > bytesPerPixel*((w*(h - 8))+(w - 8))) {
+                                    //past buffer memory, end streak
+                                    verticalStreak = NO;
+                                }
+                                else {
+                                    if (BLACK_LIGHTED_PIXEL(buffer, keyOffset)) { //is black
+                                        yPlaceholder++;
+                                    }
+                                    else {
+                                        verticalStreak = NO;
+                                    }
+                                }
                             }
-                            break;
+                            int verticalLength = yPlaceholder - y;
+                            
+                            if (verticalLength > threshold) {
+                                int one = arc4random() % 255; int two = arc4random() % 255; int three = arc4random() % 255;
+//                                unsigned long blackCount, whiteCount;
+//                                NSMutableString *string = [[NSMutableString alloc] initWithString:@"["];
+                                NSMutableArray *values = [[NSMutableArray alloc] init];
+                                for (int topRowOfKey = y; topRowOfKey < y + MIN(verticalLength, maxThreshold); topRowOfKey++) {
+                                    for (int xOffset = leftAnchor; xOffset < x; xOffset++) {
+                                        unsigned long bufferReplaceOffset = bytesPerPixel*((w*topRowOfKey)+xOffset);
+                                        if (BLACK_PIXEL(buffer, bufferReplaceOffset)) { //is black
+//                                            [string appendString:@"1,"];
+                                            [values addObject:@YES];
+//                                            blackCount++;
+//                                            buffer[bufferReplaceOffset] = 240;
+//                                            buffer[bufferReplaceOffset + 1] = 185;
+//                                            buffer[bufferReplaceOffset + 2] = 155;
+//                                            buffer[bufferReplaceOffset + 3] = 255;
+                                        }
+                                        else {
+                                            //this is where the letter should be
+                                            [values addObject:@NO];
+//                                            [string appendString:@"0,"];
+//                                            buffer[bufferReplaceOffset] = one;
+//                                            buffer[bufferReplaceOffset + 1] = two;
+//                                            buffer[bufferReplaceOffset + 2] = three;
+//                                            buffer[bufferReplaceOffset + 3] = 255;
+                                        }
+                                        
+                                    }
+                                }
+//                                if ((float)whiteCount/blackCount > 0) NSLog(@"Ratio:%f", (float)whiteCount/blackCount);
+//                                NSLog(@"%@", string);
+                                
+                                for (NSArray *array in currentLetterData) {
+//                                    NSLog(@"count:%f", abs(values.count - array.count)/(float)values.count);
+                                    if (abs(values.count - array.count)/(float)values.count > PERCENT_ERROR) continue;
+                                    int incorrectValues = 0;
+                                    for (int i = 0; i < MIN(values.count, array.count); i++) {
+                                        if ([values[i] boolValue] != [array[i] boolValue]) {
+                                            incorrectValues++;
+                                        }
+                                    }
+                                    if ((float)incorrectValues/MIN(values.count, array.count) < PERCENT_ERROR) {
+                                        
+                                        //the value matches up
+                                        for (int topRowOfKey = y; topRowOfKey < y + MIN(verticalLength, maxThreshold); topRowOfKey++) {
+                                            for (int xOffset = leftAnchor; xOffset < x; xOffset++) {
+                                                unsigned long bufferReplaceOffset = bytesPerPixel*((w*topRowOfKey)+xOffset);
+                                                if (BLACK_PIXEL(buffer, bufferReplaceOffset)) { //is black
+                                                    buffer[bufferReplaceOffset] = 240;
+                                                    buffer[bufferReplaceOffset + 1] = 185;
+                                                    buffer[bufferReplaceOffset + 2] = 155;
+                                                    buffer[bufferReplaceOffset + 3] = 255;
+                                                }
+                                                else {
+                                                    //this is where the letter should be
+                                                    buffer[bufferReplaceOffset] = one;
+                                                    buffer[bufferReplaceOffset + 1] = two;
+                                                    buffer[bufferReplaceOffset + 2] = three;
+                                                    buffer[bufferReplaceOffset + 3] = 255;
+                                                }
+                                                
+                                            }
+                                        }
+                                        
+                                        
+                                    }
+                                    
+                                }
+                            }
 
                             
                         }
@@ -220,15 +324,9 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
         }
         if (connection == videoConnection) {
             if (self.videoType == 0) self.videoType = CMFormatDescriptionGetMediaSubType( formatDescription );
-//            CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
-//            CIImage *image = [CIImage imageWithCVPixelBuffer:pixelBuffer];
             CGColorSpaceRef colorSpaceRGB = CGColorSpaceCreateDeviceRGB();
             NSData *_pixelsData = [NSData dataWithBytesNoCopy:buffer length:(sizeof(unsigned char)*bytesPerPixel*w*h) freeWhenDone:NO ];
             CIImage *image = [[CIImage alloc] initWithBitmapData:_pixelsData bytesPerRow:(w*bytesPerPixel*sizeof(unsigned char)) size:CGSizeMake(w,h) format:kCIFormatARGB8 colorSpace:colorSpaceRGB];
-            
-//            NSData *_pixelsData = [NSData dataWithBytesNoCopy:buffer length:(sizeof(unsigned char)*bytesPerPixel*w*h) freeWhenDone:YES ];
-//            CIImage *image = [[CIImage alloc] initWithBitmapData:_pixelsData bytesPerRow:(w*bytesPerPixel*sizeof(unsigned char)) size:CGSizeMake(h,w) format:kCIFormatARGB8 colorSpace:colorSpaceRGB];
-            
             
             
             CGColorSpaceRelease(colorSpaceRGB);
@@ -252,6 +350,10 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     NSLog(@"didReceiveMemoryWarning");
+    time = 1.3;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 10 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        time = .5;
+    });
 }
 
 
