@@ -9,17 +9,10 @@
 #import "MSViewController.h"
 
 
-#define BLACK_THRESHOLD 60
-#define WHITE_THRESHOLD 252
-#define PERCENT_ERROR 0.06
+#define BLACK_THRESHOLD 40
 
 
 static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {return !(buffer[offset] > BLACK_THRESHOLD &&  buffer[offset+1] > BLACK_THRESHOLD &&  buffer[offset+2] > BLACK_THRESHOLD);}
-static inline BOOL WHITE_PIXEL (unsigned char *buffer,  unsigned long offset) { return (buffer[offset] > WHITE_THRESHOLD &&  buffer[offset+1] > WHITE_THRESHOLD &&  buffer[offset+2] > WHITE_THRESHOLD);}
-//incase there is light directly on the pixel
-static inline BOOL BLACK_LIGHTED_PIXEL (unsigned char *buffer,  unsigned long offset) {return BLACK_PIXEL(buffer, offset) || WHITE_PIXEL(buffer, offset);}
-
-static inline double radians (double degrees) {return degrees * M_PI/180;}
 
 @interface MSViewController ()
 @property (readwrite) CMVideoCodecType videoType;
@@ -158,7 +151,7 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
     
     if (!update) return;
     update = NO;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, time * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
         update = YES;
     });
     
@@ -185,167 +178,29 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
         bytesPerPixel = r/w;
         buffer = CVPixelBufferGetBaseAddress(pixelBuffer);
 
-        UIGraphicsBeginImageContext(CGSizeMake(w, h));
-        CGContextRef c = UIGraphicsGetCurrentContext();
-        unsigned char* data = CGBitmapContextGetData(c);
+//        UIGraphicsBeginImageContext(CGSizeMake(w, h));
+//        CGContextRef c = UIGraphicsGetCurrentContext();
+//        unsigned char* data = CGBitmapContextGetData(c);
         int final = 0;
-        if (data != NULL) {
-            
+        if (buffer != NULL) {
             for (int y = 0; y < h - 8; y++) {
-                BOOL keyFound = NO; int xAxisKeyLength = 0;
+//                BOOL keyFound = NO; int xAxisKeyLength = 0;
                 for (int x = 0; x < w - 8; x++) {
                     unsigned long offset = bytesPerPixel*((w*y)+x);
-//                    BOOL notBlack = (buffer[offset] > BLACK_THRESHOLD &&  buffer[offset+1] > BLACK_THRESHOLD &&  buffer[offset+2] > BLACK_THRESHOLD);
-                    offset +=2;
-                    if (BLACK_LIGHTED_PIXEL(buffer, offset)) { //if black
-                        if (!keyFound) keyFound = YES;
-                        xAxisKeyLength++;
-//                        buffer[offset] = 235;
-//                        buffer[offset + 1] = 225;
-//                        buffer[offset + 2] = 255;
+                    if (BLACK_PIXEL(buffer, offset)) { //is black
+                        buffer[offset] = 240;
+                        buffer[offset + 1] = 185;
+                        buffer[offset + 2] = 155;
+                        buffer[offset + 3] = 255;
+                    }
+//                    else {
+//                        //this is where the letter should be
+//                        buffer[offset] = red;
+//                        buffer[offset + 1] = green;
+//                        buffer[offset + 2] = blue;
 //                        buffer[offset + 3] = 255;
-                    }
-                    else if (keyFound) {
-                        keyFound = NO;
-                        int threshold = 75;
-                        int maxThreshold = 200;
-                        if (xAxisKeyLength > threshold) {
-                            xAxisKeyLength = MIN(xAxisKeyLength, maxThreshold);
-                            /*for (int yt = y; yt < y + xAxisKeyLength; yt++) {
-                                for (int xt = x- xAxisKeyLength; xt < x; xt++) {
-                                    //
-                                    unsigned long tempOffset = bytesPerPixel*((w*yt)+xt);
-                                    if (tempOffset < bytesPerPixel*((w*(h - 8))+(w - 8))) {
-                                        buffer[tempOffset] = 240;
-                                        buffer[tempOffset + 1] = 185;
-                                        buffer[tempOffset + 2] = 155;
-                                        buffer[tempOffset + 3] = 255;
-                                    }
-                                }
-                            }*/
-                            
-                            int leftAnchor = x - xAxisKeyLength;
-                            BOOL verticalStreak = YES;
-                            int yPlaceholder = y;
-                            while (verticalStreak) {
-                                unsigned long keyOffset = bytesPerPixel*((w*yPlaceholder)+leftAnchor); //start traversing down the key
-                                if (keyOffset > bytesPerPixel*((w*(h - 8))+(w - 8))) {
-                                    //past buffer memory, end streak
-                                    verticalStreak = NO;
-                                }
-                                else {
-                                    if (BLACK_LIGHTED_PIXEL(buffer, keyOffset)) { //is black
-                                        yPlaceholder++;
-                                    }
-                                    else {
-                                        verticalStreak = NO;
-                                    }
-                                }
-                            }
-                            int verticalLength = yPlaceholder - y;
-                            
-                            if (verticalLength > threshold) {
-                                int one = arc4random() % 255; int two = arc4random() % 255; int three = arc4random() % 255;
-//                                unsigned long blackCount, whiteCount;
-                                NSMutableString *string = [[NSMutableString alloc] initWithString:@"["];
-                                
-                                for (int topRowOfKey = y; topRowOfKey < y + MIN(verticalLength, maxThreshold); topRowOfKey++) {
-                                    for (int xOffset = leftAnchor; xOffset < x; xOffset++) {
-                                        unsigned long bufferReplaceOffset = bytesPerPixel*((w*topRowOfKey)+xOffset);
-                                        if (BLACK_PIXEL(buffer, bufferReplaceOffset)) { //is black
-                                            [string appendString:@"1,"];
-                                            buffer[bufferReplaceOffset] = 240;
-                                            buffer[bufferReplaceOffset + 1] = 185;
-                                            buffer[bufferReplaceOffset + 2] = 155;
-                                            buffer[bufferReplaceOffset + 3] = 255;
-                                        }
-                                        else {
-                                            //this is where the letter should be
-                                            [string appendString:@"0,"];
-                                            buffer[bufferReplaceOffset] = one;
-                                            buffer[bufferReplaceOffset + 1] = two;
-                                            buffer[bufferReplaceOffset + 2] = three;
-                                            buffer[bufferReplaceOffset + 3] = 255;
-                                        }
-                                        
-                                    }
-                                }
-                                //                                if ((float)whiteCount/blackCount > 0) NSLog(@"Ratio:%f", (float)whiteCount/blackCount);
-                                NSLog(@"%@", string);
+//                    }
 
-                                
-                                
-                                /*
-                                 NSMutableArray *values = [[NSMutableArray alloc] init];
-                                 for (int topRowOfKey = y; topRowOfKey < y + MIN(verticalLength, maxThreshold); topRowOfKey++) {
-                                    for (int xOffset = leftAnchor; xOffset < x; xOffset++) {
-                                        unsigned long bufferReplaceOffset = bytesPerPixel*((w*topRowOfKey)+xOffset);
-                                        if (BLACK_PIXEL(buffer, bufferReplaceOffset)) { //is black
-//                                            [string appendString:@"1,"];
-                                            [values addObject:@YES];
-//                                            blackCount++;
-//                                            buffer[bufferReplaceOffset] = 240;
-//                                            buffer[bufferReplaceOffset + 1] = 185;
-//                                            buffer[bufferReplaceOffset + 2] = 155;
-//                                            buffer[bufferReplaceOffset + 3] = 255;
-                                        }
-                                        else {
-                                            //this is where the letter should be
-                                            [values addObject:@NO];
-//                                            [string appendString:@"0,"];
-//                                            buffer[bufferReplaceOffset] = one;
-//                                            buffer[bufferReplaceOffset + 1] = two;
-//                                            buffer[bufferReplaceOffset + 2] = three;
-//                                            buffer[bufferReplaceOffset + 3] = 255;
-                                        }
-                                        
-                                    }
-                                }
-//                                if ((float)whiteCount/blackCount > 0) NSLog(@"Ratio:%f", (float)whiteCount/blackCount);
-//                                NSLog(@"%@", string);
-                                
-                                for (NSArray *array in currentLetterData) {
-//                                    NSLog(@"count:%f", abs(values.count - array.count)/(float)values.count);
-                                    if (abs(values.count - array.count)/(float)values.count > PERCENT_ERROR) continue;
-                                    int incorrectValues = 0;
-                                    for (int i = 0; i < MIN(values.count, array.count); i++) {
-                                        if ([values[i] boolValue] != [array[i] boolValue]) {
-                                            incorrectValues++;
-                                        }
-                                    }
-                                    if ((float)incorrectValues/MIN(values.count, array.count) < PERCENT_ERROR) {
-                                        
-                                        //the value matches up
-                                        for (int topRowOfKey = y; topRowOfKey < y + MIN(verticalLength, maxThreshold); topRowOfKey++) {
-                                            for (int xOffset = leftAnchor; xOffset < x; xOffset++) {
-                                                unsigned long bufferReplaceOffset = bytesPerPixel*((w*topRowOfKey)+xOffset);
-                                                if (BLACK_PIXEL(buffer, bufferReplaceOffset)) { //is black
-                                                    buffer[bufferReplaceOffset] = 240;
-                                                    buffer[bufferReplaceOffset + 1] = 185;
-                                                    buffer[bufferReplaceOffset + 2] = 155;
-                                                    buffer[bufferReplaceOffset + 3] = 255;
-                                                }
-                                                else {
-                                                    //this is where the letter should be
-                                                    buffer[bufferReplaceOffset] = one;
-                                                    buffer[bufferReplaceOffset + 1] = two;
-                                                    buffer[bufferReplaceOffset + 2] = three;
-                                                    buffer[bufferReplaceOffset + 3] = 255;
-                                                }
-                                                
-                                            }
-                                        }
-                                        
-                                        
-                                    }
-                                    
-                                }
-                                */
-                            }
-
-                            
-                        }
-                    }
                 }
             }
             
@@ -358,7 +213,7 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
             CIImage *image = [[CIImage alloc] initWithBitmapData:_pixelsData bytesPerRow:(w*bytesPerPixel*sizeof(unsigned char)) size:CGSizeMake(w,h) format:kCIFormatARGB8 colorSpace:colorSpaceRGB];
             
             
-            CGColorSpaceRelease(colorSpaceRGB);
+            
 //                if (hasOverlay && NO) {
 //                    CIFilter *filter = [CIFilter filterWithName:@"CIGaussianBlur"];
 //                    [filter setValue:image forKey:kCIInputImageKey]; [filter setValue:@22.0f forKey:@"inputRadius"];
@@ -366,7 +221,7 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
 //                }
                 CGAffineTransform transform = CGAffineTransformMakeRotation(-M_PI_2);
                 image = [image imageByApplyingTransform:transform];
-            
+            CGColorSpaceRelease(colorSpaceRGB);
             
             dispatch_async(dispatch_get_main_queue(), ^{
                 [coreImageContext drawImage:image inRect:CGRectMake(0, 0, screenSize.width*2, screenSize.height*2) fromRect:CGRectMake(0, -1280, 720, 1280)];
