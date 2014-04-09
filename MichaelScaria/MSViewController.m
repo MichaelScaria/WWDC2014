@@ -30,7 +30,6 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     NSString *filePath = [[NSBundle mainBundle] pathForResource:@"m" ofType:@"json"];
     NSData *data = [NSData dataWithContentsOfFile:filePath];
     currentLetterData = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:nil];
-    currentLetterData = @[currentLetterData[1]];
     time = .5;
     hasOverlay = YES;
 	self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
@@ -83,6 +82,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     //        [self goToCamera];
     //    });
 }
+
 
 - (AVCaptureDevice *)videoDeviceWithPosition:(AVCaptureDevicePosition)position
 {
@@ -144,6 +144,18 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     return outBuff;
 }
 
+- (void)createLabelWithRect:(CGRect)rect {
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        UILabel *test = [[UILabel alloc] initWithFrame:rect];
+        test.backgroundColor = [UIColor greenColor];
+        test.text = @"M";
+        test.font = [UIFont fontWithName:@"HelveticaNeue-Bold" size:32];
+        test.textColor = [UIColor whiteColor];
+        [_overlayView addSubview:test];
+    });
+}
+
 
 
 -(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
@@ -152,12 +164,15 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     if (!update) return;
     update = NO;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, time * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        for (UIView *subview in _overlayView.subviews) {
+            [subview removeFromSuperview];
+        }
         update = YES;
     });
     
     CMFormatDescriptionRef formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer);
     
-
+    
     CVPixelBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
     
     
@@ -168,36 +183,37 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
         unsigned long bytesPerPixel = 0;
         unsigned char *buffer;
         //switch
-//        h = CVPixelBufferGetWidth(pixelBuffer); w = CVPixelBufferGetHeight(pixelBuffer); r = CVPixelBufferGetBytesPerRow(pixelBuffer);
-//        bytesPerPixel = r/h;
-//        buffer = [self rotateBuffer:sampleBuffer];
-
+        //        h = CVPixelBufferGetWidth(pixelBuffer); w = CVPixelBufferGetHeight(pixelBuffer); r = CVPixelBufferGetBytesPerRow(pixelBuffer);
+        //        bytesPerPixel = r/h;
+        //        buffer = [self rotateBuffer:sampleBuffer];
+        
         w = CVPixelBufferGetWidth(pixelBuffer);
         h = CVPixelBufferGetHeight(pixelBuffer);
         r = CVPixelBufferGetBytesPerRow(pixelBuffer);
         bytesPerPixel = r/w;
         buffer = CVPixelBufferGetBaseAddress(pixelBuffer);
-
-//        UIGraphicsBeginImageContext(CGSizeMake(w, h));
-//        CGContextRef c = UIGraphicsGetCurrentContext();
-//        unsigned char* data = CGBitmapContextGetData(c);
+        
+        //        UIGraphicsBeginImageContext(CGSizeMake(w, h));
+        //        CGContextRef c = UIGraphicsGetCurrentContext();
+        //        unsigned char* data = CGBitmapContextGetData(c);
         if (buffer != NULL) {
-            
             for (int y = 0; y < h - 8; y++) {
                 BOOL keyFound = NO; int xAxisKeyLength = 0;
                 for (int x = 0; x < w - 8; x++) {
                     unsigned long offset = bytesPerPixel*((w*y)+x);
-                    offset +=2;
-                    if (BLACK_PIXEL(buffer, offset)) { //if black
+                    if (BLACK_PIXEL(buffer, offset)) { //is black
                         if (!keyFound) keyFound = YES;
                         xAxisKeyLength++;
-
+//                        buffer[offset] = 240;
+//                        buffer[offset + 1] = 185;
+//                        buffer[offset + 2] = 155;
+//                        buffer[offset + 3] = 255;
                     }
                     else if (keyFound) {
                         keyFound = NO;
-                        int threshold = 75;
+                        int threshold = 120;
                         if (xAxisKeyLength > threshold) {
-
+                            
                             
                             int leftAnchor = x - xAxisKeyLength;
                             BOOL verticalStreak = YES;
@@ -220,30 +236,30 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
                             int verticalLength = yPlaceholder - y;
                             
                             if (verticalLength > threshold) {
+                                int one = arc4random() % 255; int two = arc4random() % 255; int three = arc4random() % 255;
+                                 for (int topRowOfKey = y; topRowOfKey < y + verticalLength; topRowOfKey++) {
+                                     for (int xOffset = leftAnchor; xOffset < x; xOffset++) {
+                                         unsigned long bufferReplaceOffset = bytesPerPixel*((w*topRowOfKey)+xOffset);
+                                         if (BLACK_PIXEL(buffer, bufferReplaceOffset)) {
+                                             buffer[bufferReplaceOffset] = one;
+                                             buffer[bufferReplaceOffset + 1] = two;
+                                             buffer[bufferReplaceOffset + 2] = three;
+                                             buffer[bufferReplaceOffset + 3] = 255;
+                                         }
+                                         
+                                     }
+                                 }
                                 
-                                for (int topRowOfKey = y; topRowOfKey < y + verticalLength; topRowOfKey++) {
-                                    for (int xOffset = leftAnchor; xOffset < x; xOffset++) {
-                                        if (BLACK_PIXEL(buffer, offset)) { //if black
-                                            unsigned long bufferReplaceOffset = bytesPerPixel*((w*topRowOfKey)+xOffset);
-                                            if (BLACK_PIXEL(buffer, bufferReplaceOffset)) {
-                                                buffer[bufferReplaceOffset] = 240;
-                                                buffer[bufferReplaceOffset + 1] = 185;
-                                                buffer[bufferReplaceOffset + 2] = 155;
-                                                buffer[bufferReplaceOffset + 3] = 255;
-                                            }
-                                            
-                                        }
-                                    }
-                                }
-                                
-                                
-                                
-                        
-                            }
+                                [self createLabelWithRect:CGRectMake((float)leftAnchor/w * self.view.frame.size.width, (float)y/h * self.view.frame.size.height, (float)(x - leftAnchor)/w * self.view.frame.size.width, (float)verticalLength/h * self.view.frame.size.height)];
+                             
+                             
+                             
+                             }
                             
-                            
+                            xAxisKeyLength = 0;
                         }
                     }
+                    
                 }
             }
             
@@ -257,13 +273,13 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
             
             
             
-//                if (hasOverlay && NO) {
-//                    CIFilter *filter = [CIFilter filterWithName:@"CIGaussianBlur"];
-//                    [filter setValue:image forKey:kCIInputImageKey]; [filter setValue:@22.0f forKey:@"inputRadius"];
-//                    image = [filter valueForKey:kCIOutputImageKey];
-//                }
-                CGAffineTransform transform = CGAffineTransformMakeRotation(-M_PI_2);
-                image = [image imageByApplyingTransform:transform];
+            //                if (hasOverlay && NO) {
+            //                    CIFilter *filter = [CIFilter filterWithName:@"CIGaussianBlur"];
+            //                    [filter setValue:image forKey:kCIInputImageKey]; [filter setValue:@22.0f forKey:@"inputRadius"];
+            //                    image = [filter valueForKey:kCIOutputImageKey];
+            //                }
+            CGAffineTransform transform = CGAffineTransformMakeRotation(-M_PI_2);
+            image = [image imageByApplyingTransform:transform];
             CGColorSpaceRelease(colorSpaceRGB);
             
             dispatch_async(dispatch_get_main_queue(), ^{
