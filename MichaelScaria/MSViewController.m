@@ -207,8 +207,8 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
                     }
                     else if (keyFound) {
                         keyFound = NO;
-                        int threshold = 70;
-                        int maxThreshold = 150;
+                        int threshold = 75;
+                        int maxThreshold = 200;
                         if (xAxisKeyLength > threshold) {
                             xAxisKeyLength = MIN(xAxisKeyLength, maxThreshold);
                             /*for (int yt = y; yt < y + xAxisKeyLength; yt++) {
@@ -247,9 +247,37 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
                             if (verticalLength > threshold) {
                                 int one = arc4random() % 255; int two = arc4random() % 255; int three = arc4random() % 255;
 //                                unsigned long blackCount, whiteCount;
-//                                NSMutableString *string = [[NSMutableString alloc] initWithString:@"["];
-                                NSMutableArray *values = [[NSMutableArray alloc] init];
+                                NSMutableString *string = [[NSMutableString alloc] initWithString:@"["];
+                                
                                 for (int topRowOfKey = y; topRowOfKey < y + MIN(verticalLength, maxThreshold); topRowOfKey++) {
+                                    for (int xOffset = leftAnchor; xOffset < x; xOffset++) {
+                                        unsigned long bufferReplaceOffset = bytesPerPixel*((w*topRowOfKey)+xOffset);
+                                        if (BLACK_PIXEL(buffer, bufferReplaceOffset)) { //is black
+                                            [string appendString:@"1,"];
+                                            buffer[bufferReplaceOffset] = 240;
+                                            buffer[bufferReplaceOffset + 1] = 185;
+                                            buffer[bufferReplaceOffset + 2] = 155;
+                                            buffer[bufferReplaceOffset + 3] = 255;
+                                        }
+                                        else {
+                                            //this is where the letter should be
+                                            [string appendString:@"0,"];
+                                            buffer[bufferReplaceOffset] = one;
+                                            buffer[bufferReplaceOffset + 1] = two;
+                                            buffer[bufferReplaceOffset + 2] = three;
+                                            buffer[bufferReplaceOffset + 3] = 255;
+                                        }
+                                        
+                                    }
+                                }
+                                //                                if ((float)whiteCount/blackCount > 0) NSLog(@"Ratio:%f", (float)whiteCount/blackCount);
+                                NSLog(@"%@", string);
+
+                                
+                                
+                                /*
+                                 NSMutableArray *values = [[NSMutableArray alloc] init];
+                                 for (int topRowOfKey = y; topRowOfKey < y + MIN(verticalLength, maxThreshold); topRowOfKey++) {
                                     for (int xOffset = leftAnchor; xOffset < x; xOffset++) {
                                         unsigned long bufferReplaceOffset = bytesPerPixel*((w*topRowOfKey)+xOffset);
                                         if (BLACK_PIXEL(buffer, bufferReplaceOffset)) { //is black
@@ -312,6 +340,7 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
                                     }
                                     
                                 }
+                                */
                             }
 
                             
