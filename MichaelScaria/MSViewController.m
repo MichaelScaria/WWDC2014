@@ -11,6 +11,12 @@
 
 #define BLACK_THRESHOLD 50
 
+//typedef NS_ENUM(NSInteger, STATUS) {
+//    kInstructions,
+//    kMe,
+//    kHackathons
+//};
+
 
 static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {return !(buffer[offset] > BLACK_THRESHOLD &&  buffer[offset+1] > BLACK_THRESHOLD &&  buffer[offset+2] > BLACK_THRESHOLD);}
 
@@ -27,11 +33,16 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    hasOverlay = YES;
+    blur = YES;
+    //get text values
     NSString *filePath = [[NSBundle mainBundle] pathForResource:@"m" ofType:@"json"];
     NSData *data = [NSData dataWithContentsOfFile:filePath];
-    currentLetterData = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:nil];
-    time = 2;
+    information = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:nil];
+    time = 3;
     hasOverlay = YES;
+    
+    //set up camera view
 	self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
     if (!self.context) {
         NSLog(@"Failed to create ES context");
@@ -50,7 +61,6 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     
     AVCaptureVideoDataOutput *videoOut = [[AVCaptureVideoDataOutput alloc] init];
     [videoOut setAlwaysDiscardsLateVideoFrames:YES];
-    //    @{(id)kCVPixelBufferPixelFormatTypeKey: [NSNumber numberWithInt:kCVPixelFormatType_32BGRA]};
     [videoOut setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
     [videoOut setSampleBufferDelegate:self queue:dispatch_queue_create("com.michaelscaria.michaelscaria Video", DISPATCH_QUEUE_SERIAL)];
     
@@ -69,11 +79,12 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     maskImage = [CIImage imageWithCGImage:cgImg];
     CGImageRelease(cgImg);
     
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, .75 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-        update = YES;
-    });
-    
-    CGImageRef imageRef = [[UIImage imageNamed:@"test.jpg"] CGImage];
+    _textView.text = @"<Tap to begin> *This app strongly recommends that you to point the camera at a keyboard of a Macbook Pro with black keys else the intended purpose will not be experienced. Also try not to get any extraneous lighting on the keys so that the keys remain stark black and the image processing algorithm can capture the correct key.";
+    index = -1;
+}
+
+- (void)setBufferWithImage:(UIImage *)image {
+    CGImageRef imageRef = [image CGImage];
     NSUInteger width = CGImageGetWidth(imageRef);
     NSUInteger height = CGImageGetHeight(imageRef);
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
@@ -88,18 +99,17 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     
     CGContextDrawImage(context, CGRectMake(0, 0, width, height), imageRef);
     CGContextRelease(context);
+}
 
-    
-//    NSLog(@"%d %d %d", currentImageBuffer[0], currentImageBuffer[1], currentImageBuffer[2]);
-    
-    
-    /*UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(takePicture)];
-    tap.numberOfTapsRequired = 2;
-*/
-    
-    //    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, .25 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-    //        [self goToCamera];
-    //    });
+- (IBAction)textViewTapped:(id)sender {
+    index++;
+    [UIView animateWithDuration:.5 animations:^{
+        _textView.alpha = 0;
+    }completion:^(BOOL isCompleted){
+        _textView.text = information[index][@"info"];
+        [self setBufferWithImage:[UIImage imageNamed:information[index][@"imageName"]]];
+        hasOverlay = NO;
+    }];
 }
 
 
@@ -167,82 +177,82 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     
     CMFormatDescriptionRef formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer);
     
-    if (update) {
-        update = NO;
-        CVPixelBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
-        
-        
-        CVReturn lock = CVPixelBufferLockBaseAddress(pixelBuffer, 0);
-        if (lock == kCVReturnSuccess) {
-            unsigned long w = 0;
-            unsigned long h = 0;
-            unsigned long r = 0;
-            unsigned long bytesPerPixel = 0;
-            unsigned char *buffer;
-            //switch
-            h = CVPixelBufferGetWidth(pixelBuffer);
-            w = CVPixelBufferGetHeight(pixelBuffer);
-            r = CVPixelBufferGetBytesPerRow(pixelBuffer);
-            bytesPerPixel = r/h;
-            buffer = [self rotateBuffer:sampleBuffer];
-            UIGraphicsBeginImageContext(CGSizeMake(w, h));
-            CGContextRef c = UIGraphicsGetCurrentContext();
-            unsigned char* data = CGBitmapContextGetData(c);
-            NSLog(@"bytesPerPixel:%lu", bytesPerPixel);
-            if (data != NULL) {
-                
-                for (int y = 0; y < h - 4; y++) {
-                    for (int x = 0; x < w - 4; x++) {
-                        unsigned long offset = bytesPerPixel*((w*y)+x);
-                        if (BLACK_PIXEL(buffer, offset)) {
-                            data[offset] = currentImageBuffer[offset];
-                            data[offset + 1] = currentImageBuffer[offset + 1];
-                            data[offset + 2] = currentImageBuffer[offset + 2];
-                            data[offset + 3] = currentImageBuffer[offset + 3];
+    if (!hasOverlay) {
+        if (update) {
+            update = NO;
+            CVPixelBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+            
+            
+            CVReturn lock = CVPixelBufferLockBaseAddress(pixelBuffer, 0);
+            if (lock == kCVReturnSuccess) {
+                unsigned long w = 0;
+                unsigned long h = 0;
+                unsigned long r = 0;
+                unsigned long bytesPerPixel = 0;
+                unsigned char *buffer;
+                //switch
+                h = CVPixelBufferGetWidth(pixelBuffer);
+                w = CVPixelBufferGetHeight(pixelBuffer);
+                r = CVPixelBufferGetBytesPerRow(pixelBuffer);
+                bytesPerPixel = r/h;
+                buffer = [self rotateBuffer:sampleBuffer];
+                UIGraphicsBeginImageContext(CGSizeMake(w, h));
+                CGContextRef c = UIGraphicsGetCurrentContext();
+                unsigned char* data = CGBitmapContextGetData(c);
+                NSLog(@"bytesPerPixel:%lu", bytesPerPixel);
+                if (data != NULL) {
+                    
+                    for (int y = 0; y < h - 4; y++) {
+                        for (int x = 0; x < w - 4; x++) {
+                            unsigned long offset = bytesPerPixel*((w*y)+x);
+                            if (BLACK_PIXEL(buffer, offset)) {
+                                data[offset] = currentImageBuffer[offset];
+                                data[offset + 1] = currentImageBuffer[offset + 1];
+                                data[offset + 2] = currentImageBuffer[offset + 2];
+                                data[offset + 3] = currentImageBuffer[offset + 3];
+                            }
+                            else {
+                                data[offset] = buffer[offset];
+                                data[offset + 1] = buffer[offset + 1];
+                                data[offset + 2] = buffer[offset + 2];
+                                data[offset + 3] = buffer[offset + 3];
+                            }
+                            
                         }
-                        else {
-                            data[offset] = buffer[offset];
-                            data[offset + 1] = buffer[offset + 1];
-                            data[offset + 2] = buffer[offset + 2];
-                            data[offset + 3] = buffer[offset + 3];
-                        }
-//
-                        
                     }
+                    
+                    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+                    
+                    UIGraphicsEndImageContext();
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        UIImageView *imageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
+                        imageView.image = img;
+                        [_overlayView addSubview:imageView];
+                    });
+                    
                 }
                 
-                UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
-                
-                UIGraphicsEndImageContext();
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    UIImageView *imageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
-                    imageView.image = img;
-                    [_overlayView addSubview:imageView];
-                });
-                
             }
-            
-            
         }
-    }
-    else {
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-            for (UIView *subview in _overlayView.subviews) {
-                [subview removeFromSuperview];
-            }
-            update = YES;
-        });
+        else {
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, time * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+                for (UIView *subview in _overlayView.subviews) {
+                    [subview removeFromSuperview];
+                }
+                update = YES;
+            });
+        }
     }
     
     if (connection == videoConnection) {
         if (self.videoType == 0) self.videoType = CMFormatDescriptionGetMediaSubType( formatDescription );
         CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
         CIImage *image = [CIImage imageWithCVPixelBuffer:pixelBuffer];
-        /*if (hasOverlay && NO) {
+        if (hasOverlay) {
             CIFilter *filter = [CIFilter filterWithName:@"CIGaussianBlur"];
             [filter setValue:image forKey:kCIInputImageKey]; [filter setValue:@18.0f forKey:@"inputRadius"];
             image = [filter valueForKey:kCIOutputImageKey];
-        }*/
+        }
         CGAffineTransform transform = CGAffineTransformMakeRotation(-M_PI_2);
         image = [image imageByApplyingTransform:transform];
         
@@ -259,11 +269,14 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     NSLog(@"didReceiveMemoryWarning");
-    time = 3;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 10 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-        time = 2;
+    time = 6;
+    blur = NO;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 20 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        time = 3;
+        blur = YES;
     });
 }
+
 
 
 @end

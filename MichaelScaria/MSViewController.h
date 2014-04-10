@@ -23,11 +23,11 @@
     
     BOOL hasOverlay;
     BOOL update;
+    BOOL blur;
     float time;
-    NSArray *currentLetterData;
     unsigned char*currentImageBuffer;
-    
-    int qwe;
+    NSArray *information;
+    int index;
 }
 
 @property (nonatomic, strong) AVCaptureDevice *device;
@@ -35,5 +35,7 @@
 
 @property (strong, nonatomic) IBOutlet GLKView *cameraView;
 @property (strong, nonatomic) IBOutlet UIView *overlayView;
+@property (strong, nonatomic) IBOutlet UITextView *textView;
+- (IBAction)textViewTapped:(id)sender;
 
 @end
