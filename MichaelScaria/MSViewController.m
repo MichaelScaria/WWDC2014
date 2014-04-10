@@ -263,7 +263,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
                                  }
 //                                NSLog(@"%lu and %lu", w, h); //2.25
 //                                [self createLabelWithRect:CGRectMake((float)leftAnchor/w * self.view.frame.size.width, (float)y/h * self.view.frame.size.height, (float)(x - leftAnchor)/w * self.view.frame.size.width, (float)verticalLength/h * self.view.frame.size.height)];
-                                NSLog(@"%f", (720 - (float)y/h * self.view.frame.size.height)/2.25);
+                                NSLog(@"%f", (float)y/h * self.view.frame.size.height);
                                 if ((float)whitePixels/blackPixels < .5 || YES) {
                                     [self createLabelWithRect:CGRectMake((720 - (float)y/h * self.view.frame.size.height)/2.25, ((float)leftAnchor/w * self.view.frame.size.width)/2.25, (float)verticalLength/h * self.view.frame.size.height, (float)(x - leftAnchor)/w * self.view.frame.size.width)];
                                 }
