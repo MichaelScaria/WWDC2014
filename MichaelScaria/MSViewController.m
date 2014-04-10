@@ -74,13 +74,9 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     });
     
     
-    /*UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(takePicture)];
-    tap.numberOfTapsRequired = 2;
-*/
+    currentImageBuffer = [self convertUIImageToBitmapRGBA8:[UIImage imageNamed:@"yc.png"]];
     
-    //    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, .25 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-    //        [self goToCamera];
-    //    });
+    
 }
 
 
@@ -144,7 +140,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     return outBuff;
 }
 
-- (void)createLabelWithRect:(CGRect)rect {
+/*- (void)createLabelWithRect:(CGRect)rect {
 
     dispatch_async(dispatch_get_main_queue(), ^{
         UILabel *test = [[UILabel alloc] initWithFrame:rect];
@@ -156,7 +152,46 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
         [_overlayView addSubview:test];
     });
 }
-
+*/
+/*- (NSArray*)getRGBAsFromImage:(UIImage*)image atX:(int)xx andY:(int)yy count:(int)count
+{
+    NSMutableArray *result = [NSMutableArray arrayWithCapacity:count];
+    
+    // First get the image into your data buffer
+    CGImageRef imageRef = [image CGImage];
+    NSUInteger width = CGImageGetWidth(imageRef);
+    NSUInteger height = CGImageGetHeight(imageRef);
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+    unsigned char *rawData = (unsigned char*) calloc(height * width * 4, sizeof(unsigned char));
+    NSUInteger bytesPerPixel = 4;
+    NSUInteger bytesPerRow = bytesPerPixel * width;
+    NSUInteger bitsPerComponent = 8;
+    CGContextRef context = CGBitmapContextCreate(rawData, width, height,
+                                                 bitsPerComponent, bytesPerRow, colorSpace,
+                                                 kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
+    CGColorSpaceRelease(colorSpace);
+    
+    CGContextDrawImage(context, CGRectMake(0, 0, width, height), imageRef);
+    CGContextRelease(context);
+    
+    // Now your rawData contains the image data in the RGBA8888 pixel format.
+    int byteIndex = (bytesPerRow * yy) + xx * bytesPerPixel;
+    for (int ii = 0 ; ii < count ; ++ii)
+    {
+        CGFloat red   = (rawData[byteIndex]     * 1.0) / 255.0;
+        CGFloat green = (rawData[byteIndex + 1] * 1.0) / 255.0;
+        CGFloat blue  = (rawData[byteIndex + 2] * 1.0) / 255.0;
+        CGFloat alpha = (rawData[byteIndex + 3] * 1.0) / 255.0;
+        byteIndex += 4;
+        
+        UIColor *acolor = [UIColor colorWithRed:red green:green blue:blue alpha:alpha];
+        [result addObject:acolor];
+    }
+    
+    free(rawData);
+    
+    return result;
+}*/
 
 
 -(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
@@ -184,9 +219,9 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
         unsigned long bytesPerPixel = 0;
         unsigned char *buffer;
         //switch
-        //        h = CVPixelBufferGetWidth(pixelBuffer); w = CVPixelBufferGetHeight(pixelBuffer); r = CVPixelBufferGetBytesPerRow(pixelBuffer);
-        //        bytesPerPixel = r/h;
-        //        buffer = [self rotateBuffer:sampleBuffer];
+//        h = CVPixelBufferGetWidth(pixelBuffer); w = CVPixelBufferGetHeight(pixelBuffer); r = CVPixelBufferGetBytesPerRow(pixelBuffer);
+//        bytesPerPixel = r/h;
+//        buffer = [self rotateBuffer:sampleBuffer];
         
         w = CVPixelBufferGetWidth(pixelBuffer);
         h = CVPixelBufferGetHeight(pixelBuffer);
@@ -194,87 +229,23 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
         bytesPerPixel = r/w;
         buffer = CVPixelBufferGetBaseAddress(pixelBuffer);
         
-        //        UIGraphicsBeginImageContext(CGSizeMake(w, h));
-        //        CGContextRef c = UIGraphicsGetCurrentContext();
-        //        unsigned char* data = CGBitmapContextGetData(c);
+        UIGraphicsBeginImageContext(CGSizeMake(w, h));
+        CGContextRef c = UIGraphicsGetCurrentContext();
+//        unsigned char* data = CGBitmapContextGetData(c);
         if (buffer != NULL) {
             for (int y = 0; y < h - 8; y++) {
-                BOOL keyFound = NO; int xAxisKeyLength = 0;
                 for (int x = 0; x < w - 8; x++) {
                     unsigned long offset = bytesPerPixel*((w*y)+x);
                     if (BLACK_PIXEL(buffer, offset)) { //is black
-                        if (!keyFound) keyFound = YES;
-                        xAxisKeyLength++;
-//                        buffer[offset] = 240;
-//                        buffer[offset + 1] = 185;
-//                        buffer[offset + 2] = 155;
-//                        buffer[offset + 3] = 255;
-                    }
-                    else if (keyFound) {
-                        keyFound = NO;
-                        int threshold = 50*2;
-                        int maxThreshold = 60*2;
-                        if (xAxisKeyLength > threshold) {
-                            
-                            xAxisKeyLength = MIN(xAxisKeyLength, maxThreshold);
-                            int leftAnchor = x - xAxisKeyLength;
-                            BOOL verticalStreak = YES;
-                            int yPlaceholder = y;
-                            while (verticalStreak) {
-                                unsigned long keyOffset = bytesPerPixel*((w*yPlaceholder)+leftAnchor); //start traversing down the key
-                                if (keyOffset > bytesPerPixel*((w*(h - 8))+(w - 8))) {
-                                    //past buffer memory, end streak
-                                    verticalStreak = NO;
-                                }
-                                else {
-                                    if (BLACK_PIXEL(buffer, keyOffset)) { //is black
-                                        yPlaceholder++;
-                                    }
-                                    else {
-                                        verticalStreak = NO;
-                                    }
-                                }
-                            }
-                            int verticalLength = MIN(yPlaceholder - y, maxThreshold);
-                            
-                            if (verticalLength > threshold) {
-//                                int one = arc4random() % 255; int two = arc4random() % 255; int three = arc4random() % 255;
-                                int blackPixels, whitePixels;
-                                 for (int topRowOfKey = y; topRowOfKey < y + verticalLength; topRowOfKey++) {
-                                     for (int xOffset = leftAnchor; xOffset < x; xOffset++) {
-                                         unsigned long bufferReplaceOffset = bytesPerPixel*((w*topRowOfKey)+xOffset);
-                                         if (BLACK_PIXEL(buffer, bufferReplaceOffset)) {
-                                             blackPixels++;
-                                             buffer[bufferReplaceOffset] = 245;
-                                             buffer[bufferReplaceOffset + 1] = 105;
-                                             buffer[bufferReplaceOffset + 2] = 155;
-                                             buffer[bufferReplaceOffset + 3] = 255;
-                                         }
-                                         else {
-                                             whitePixels++;
-                                             
-                                             buffer[bufferReplaceOffset] = 245;
-                                             buffer[bufferReplaceOffset + 1] = 185;
-                                             buffer[bufferReplaceOffset + 2] = 105;
-                                             buffer[bufferReplaceOffset + 3] = 255;
-                                         }
-                                         
-                                     }
-                                 }
-//                                NSLog(@"%lu and %lu", w, h); //2.25
-//                                [self createLabelWithRect:CGRectMake((float)leftAnchor/w * self.view.frame.size.width, (float)y/h * self.view.frame.size.height, (float)(x - leftAnchor)/w * self.view.frame.size.width, (float)verticalLength/h * self.view.frame.size.height)];
-                                NSLog(@"%f", (float)y/h * self.view.frame.size.height);
-                                if ((float)whitePixels/blackPixels < .5 || YES) {
-                                    [self createLabelWithRect:CGRectMake((720 - (float)y/h * self.view.frame.size.height)/2.25, ((float)leftAnchor/w * self.view.frame.size.width)/2.25, (float)verticalLength/h * self.view.frame.size.height, (float)(x - leftAnchor)/w * self.view.frame.size.width)];
-                                }
-                                
-
-                             
-                             
-                             }
-                            
-                            xAxisKeyLength = 0;
-                        }
+                        NSLog(@"%d %d %d", )
+                        buffer[offset] = currentImageBuffer[offset];
+                        buffer[offset + 1] = currentImageBuffer[offset + 1];
+                        buffer[offset + 2] = currentImageBuffer[offset + 2];
+                        buffer[offset + 3] = currentImageBuffer[offset + 3];
+//                        data[offset] = currentImageBuffer[offset];
+//                        data[offset + 1] = currentImageBuffer[offset + 1];
+//                        data[offset + 2] = currentImageBuffer[offset + 2];
+//                        data[offset + 3] = currentImageBuffer[offset + 3];
                     }
                     
                 }
@@ -287,7 +258,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
             CGColorSpaceRef colorSpaceRGB = CGColorSpaceCreateDeviceRGB();
             NSData *_pixelsData = [NSData dataWithBytesNoCopy:buffer length:(sizeof(unsigned char)*bytesPerPixel*w*h) freeWhenDone:NO ];
             CIImage *image = [[CIImage alloc] initWithBitmapData:_pixelsData bytesPerRow:(w*bytesPerPixel*sizeof(unsigned char)) size:CGSizeMake(w,h) format:kCIFormatARGB8 colorSpace:colorSpaceRGB];
-            
+
             
             
             //                if (hasOverlay && NO) {
@@ -298,9 +269,14 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
             CGAffineTransform transform = CGAffineTransformMakeRotation(-M_PI_2);
             image = [image imageByApplyingTransform:transform];
             CGColorSpaceRelease(colorSpaceRGB);
+//
+            
+            
             
             dispatch_async(dispatch_get_main_queue(), ^{
                 [coreImageContext drawImage:image inRect:CGRectMake(0, 0, screenSize.width*2, screenSize.height*2) fromRect:CGRectMake(0, -1280, 720, 1280)];
+
+
                 [self.context presentRenderbuffer:GL_RENDERBUFFER];
             });
         }
@@ -315,6 +291,193 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
         time = .5;
     });
 }
+
+#pragma mark - ImageStuff
+
+
+- (unsigned char *) convertUIImageToBitmapRGBA8:(UIImage *) image {
+	
+	CGImageRef imageRef = image.CGImage;
+	
+	// Create a bitmap context to draw the uiimage into
+	CGContextRef context = [self newBitmapRGBA8ContextFromImage:imageRef];
+	
+	if(!context) {
+		return NULL;
+	}
+	
+	size_t width = CGImageGetWidth(imageRef);
+	size_t height = CGImageGetHeight(imageRef);
+	
+	CGRect rect = CGRectMake(0, 0, width, height);
+	
+	// Draw image into the context to get the raw image data
+	CGContextDrawImage(context, rect, imageRef);
+	
+	// Get a pointer to the data
+	unsigned char *bitmapData = (unsigned char *)CGBitmapContextGetData(context);
+	
+	// Copy the data and release the memory (return memory allocated with new)
+	size_t bytesPerRow = CGBitmapContextGetBytesPerRow(context);
+	size_t bufferLength = bytesPerRow * height;
+	
+	unsigned char *newBitmap = NULL;
+	
+	if(bitmapData) {
+		newBitmap = (unsigned char *)malloc(sizeof(unsigned char) * bytesPerRow * height);
+		
+		if(newBitmap) {	// Copy the data
+			for(int i = 0; i < bufferLength; ++i) {
+				newBitmap[i] = bitmapData[i];
+			}
+		}
+		
+		free(bitmapData);
+		
+	} else {
+		NSLog(@"Error getting bitmap pixel data\n");
+	}
+	
+	CGContextRelease(context);
+	
+	return newBitmap;
+}
+
+- (CGContextRef) newBitmapRGBA8ContextFromImage:(CGImageRef) image {
+	CGContextRef context = NULL;
+	CGColorSpaceRef colorSpace;
+	uint32_t *bitmapData;
+	
+	size_t bitsPerPixel = 32;
+	size_t bitsPerComponent = 8;
+	size_t bytesPerPixel = bitsPerPixel / bitsPerComponent;
+	
+	size_t width = CGImageGetWidth(image);
+	size_t height = CGImageGetHeight(image);
+	
+	size_t bytesPerRow = width * bytesPerPixel;
+	size_t bufferLength = bytesPerRow * height;
+	
+	colorSpace = CGColorSpaceCreateDeviceRGB();
+	
+	if(!colorSpace) {
+		NSLog(@"Error allocating color space RGB\n");
+		return NULL;
+	}
+	
+	// Allocate memory for image data
+	bitmapData = (uint32_t *)malloc(bufferLength);
+	
+	if(!bitmapData) {
+		NSLog(@"Error allocating memory for bitmap\n");
+		CGColorSpaceRelease(colorSpace);
+		return NULL;
+	}
+	
+	//Create bitmap context
+	
+	context = CGBitmapContextCreate(bitmapData,
+                                    width,
+                                    height,
+                                    bitsPerComponent,
+                                    bytesPerRow,
+                                    colorSpace,
+                                    kCGImageAlphaPremultipliedLast);	// RGBA
+	if(!context) {
+		free(bitmapData);
+		NSLog(@"Bitmap context not created");
+	}
+	
+	CGColorSpaceRelease(colorSpace);
+	
+	return context;
+}
+
+- (UIImage *) convertBitmapRGBA8ToUIImage:(unsigned char *) buffer
+                                withWidth:(int) width
+                               withHeight:(int) height {
+	
+	
+	size_t bufferLength = width * height * 4;
+	CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, buffer, bufferLength, NULL);
+	size_t bitsPerComponent = 8;
+	size_t bitsPerPixel = 32;
+	size_t bytesPerRow = 4 * width;
+	
+	CGColorSpaceRef colorSpaceRef = CGColorSpaceCreateDeviceRGB();
+	if(colorSpaceRef == NULL) {
+		NSLog(@"Error allocating color space");
+		CGDataProviderRelease(provider);
+		return nil;
+	}
+	
+	CGBitmapInfo bitmapInfo = kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedLast;
+	CGColorRenderingIntent renderingIntent = kCGRenderingIntentDefault;
+	
+	CGImageRef iref = CGImageCreate(width,
+                                    height,
+                                    bitsPerComponent,
+                                    bitsPerPixel,
+                                    bytesPerRow,
+                                    colorSpaceRef,
+                                    bitmapInfo,
+                                    provider,	// data provider
+                                    NULL,		// decode
+                                    YES,			// should interpolate
+                                    renderingIntent);
+    
+	uint32_t* pixels = (uint32_t*)malloc(bufferLength);
+	
+	if(pixels == NULL) {
+		NSLog(@"Error: Memory not allocated for bitmap");
+		CGDataProviderRelease(provider);
+		CGColorSpaceRelease(colorSpaceRef);
+		CGImageRelease(iref);
+		return nil;
+	}
+	
+	CGContextRef context = CGBitmapContextCreate(pixels,
+                                                 width,
+                                                 height,
+                                                 bitsPerComponent,
+                                                 bytesPerRow,
+                                                 colorSpaceRef,
+                                                 bitmapInfo);
+	
+	if(context == NULL) {
+		NSLog(@"Error context not created");
+		free(pixels);
+	}
+	
+	UIImage *image = nil;
+	if(context) {
+		
+		CGContextDrawImage(context, CGRectMake(0.0f, 0.0f, width, height), iref);
+		
+		CGImageRef imageRef = CGBitmapContextCreateImage(context);
+		
+		// Support both iPad 3.2 and iPhone 4 Retina displays with the correct scale
+		if([UIImage respondsToSelector:@selector(imageWithCGImage:scale:orientation:)]) {
+			float scale = [[UIScreen mainScreen] scale];
+			image = [UIImage imageWithCGImage:imageRef scale:scale orientation:UIImageOrientationUp];
+		} else {
+			image = [UIImage imageWithCGImage:imageRef];
+		}
+		
+		CGImageRelease(imageRef);
+		CGContextRelease(context);
+	}
+	
+	CGColorSpaceRelease(colorSpaceRef);
+	CGImageRelease(iref);
+	CGDataProviderRelease(provider);
+	
+	if(pixels) {
+		free(pixels);
+	}
+	return image;
+}
+
 
 
 @end

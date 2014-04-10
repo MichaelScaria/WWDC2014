@@ -25,6 +25,9 @@
     BOOL update;
     float time;
     NSArray *currentLetterData;
+    unsigned char*currentImageBuffer;
+    
+    int qwe;
 }
 
 @property (nonatomic, strong) AVCaptureDevice *device;
