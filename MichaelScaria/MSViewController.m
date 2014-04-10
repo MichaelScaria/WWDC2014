@@ -30,7 +30,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     NSString *filePath = [[NSBundle mainBundle] pathForResource:@"m" ofType:@"json"];
     NSData *data = [NSData dataWithContentsOfFile:filePath];
     currentLetterData = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:nil];
-    time = .5;
+    time = 1.2;
     hasOverlay = YES;
 	self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
     if (!self.context) {
@@ -217,7 +217,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
 }*/
 
 
--(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
+/*-(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
     
     
     if (!update) return;
@@ -303,7 +303,101 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
             });
         }
     }
+}*/
+
+-(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
+    
+    CMFormatDescriptionRef formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer);
+    
+    if (update) {
+        update = NO;
+        CVPixelBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+        
+        
+        CVReturn lock = CVPixelBufferLockBaseAddress(pixelBuffer, 0);
+        if (lock == kCVReturnSuccess) {
+            unsigned long w = 0;
+            unsigned long h = 0;
+            unsigned long r = 0;
+            unsigned long bytesPerPixel = 0;
+            unsigned char *buffer;
+            //switch
+            h = CVPixelBufferGetWidth(pixelBuffer);
+            w = CVPixelBufferGetHeight(pixelBuffer);
+            r = CVPixelBufferGetBytesPerRow(pixelBuffer);
+            bytesPerPixel = r/h;
+            buffer = [self rotateBuffer:sampleBuffer];
+            UIGraphicsBeginImageContext(CGSizeMake(w, h));
+            CGContextRef c = UIGraphicsGetCurrentContext();
+            unsigned char* data = CGBitmapContextGetData(c);
+            NSLog(@"bytesPerPixel:%lu", bytesPerPixel);
+            if (data != NULL) {
+                
+                for (int y = 0; y < h - 4; y++) {
+                    for (int x = 0; x < w - 4; x++) {
+                        unsigned long offset = bytesPerPixel*((w*y)+x);
+                        unsigned long offsetx = offset + 3;
+                        if (BLACK_PIXEL(buffer, offset)) {
+                            data[offset] = currentImageBuffer[offsetx];
+                            data[offset + 1] = currentImageBuffer[offsetx + 1];
+                            data[offset + 2] = currentImageBuffer[offsetx + 2];
+                            data[offset + 3] = currentImageBuffer[offsetx + 3];
+                        }
+                        else {
+                            data[offset] = buffer[offsetx];
+                            data[offset + 1] = buffer[offsetx + 1];
+                            data[offset + 2] = buffer[offsetx + 2];
+                            data[offset + 3] = buffer[offsetx + 3];
+                        }
+//
+                        
+                    }
+                }
+                
+                UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+                
+                UIGraphicsEndImageContext();
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    UIImageView *imageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
+                    imageView.image = img;
+                    [_overlayView addSubview:imageView];
+                });
+                
+            }
+            
+            
+        }
+    }
+    else {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, time * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+            for (UIView *subview in _overlayView.subviews) {
+                [subview removeFromSuperview];
+            }
+            update = YES;
+        });
+    }
+    
+    if (connection == videoConnection) {
+        if (self.videoType == 0) self.videoType = CMFormatDescriptionGetMediaSubType( formatDescription );
+        CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
+        CIImage *image = [CIImage imageWithCVPixelBuffer:pixelBuffer];
+        /*if (hasOverlay && NO) {
+            CIFilter *filter = [CIFilter filterWithName:@"CIGaussianBlur"];
+            [filter setValue:image forKey:kCIInputImageKey]; [filter setValue:@18.0f forKey:@"inputRadius"];
+            image = [filter valueForKey:kCIOutputImageKey];
+        }*/
+        CGAffineTransform transform = CGAffineTransformMakeRotation(-M_PI_2);
+        image = [image imageByApplyingTransform:transform];
+        
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [coreImageContext drawImage:image inRect:CGRectMake(0, 0, screenSize.width*2, screenSize.height*2) fromRect:CGRectMake(0, -1280, 720, 1280)];
+            [self.context presentRenderbuffer:GL_RENDERBUFFER];
+        });
+    }
+    
 }
+
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
