@@ -30,6 +30,7 @@
 		9E07CD7718EE2551005CAD84 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E07CD7618EE2551005CAD84 /* GLKit.framework */; };
 		9E07CD7A18EE259C005CAD84 /* MSInfoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E07CD7918EE259C005CAD84 /* MSInfoViewController.m */; };
 		9E70BC1B18F64640009940EC /* yc.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E70BC1A18F64640009940EC /* yc.png */; };
+		9E70BC1D18F66416009940EC /* test.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 9E70BC1C18F66416009940EC /* test.jpg */; };
 		9E8E58EA18F4F38F00DCF8A0 /* m.json in Resources */ = {isa = PBXBuildFile; fileRef = 9E8E58E918F4F38F00DCF8A0 /* m.json */; };
 /* End PBXBuildFile section */
 
@@ -73,6 +74,7 @@
 		9E07CD7818EE259C005CAD84 /* MSInfoViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSInfoViewController.h; sourceTree = "<group>"; };
 		9E07CD7918EE259C005CAD84 /* MSInfoViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSInfoViewController.m; sourceTree = "<group>"; };
 		9E70BC1A18F64640009940EC /* yc.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = yc.png; sourceTree = "<group>"; };
+		9E70BC1C18F66416009940EC /* test.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = test.jpg; sourceTree = "<group>"; };
 		9E8E58E918F4F38F00DCF8A0 /* m.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = m.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -156,6 +158,7 @@
 				9E07CD7918EE259C005CAD84 /* MSInfoViewController.m */,
 				9E8E58E918F4F38F00DCF8A0 /* m.json */,
 				9E70BC1A18F64640009940EC /* yc.png */,
+				9E70BC1C18F66416009940EC /* test.jpg */,
 				9E07CD4D18EE2509005CAD84 /* Images.xcassets */,
 				9E07CD3C18EE2509005CAD84 /* Supporting Files */,
 			);
@@ -269,6 +272,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9E70BC1B18F64640009940EC /* yc.png in Resources */,
+				9E70BC1D18F66416009940EC /* test.jpg in Resources */,
 				9E07CD4E18EE2509005CAD84 /* Images.xcassets in Resources */,
 				9E07CD4018EE2509005CAD84 /* InfoPlist.strings in Resources */,
 				9E07CD4918EE2509005CAD84 /* Main.storyboard in Resources */,

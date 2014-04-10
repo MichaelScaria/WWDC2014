@@ -30,7 +30,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     NSString *filePath = [[NSBundle mainBundle] pathForResource:@"m" ofType:@"json"];
     NSData *data = [NSData dataWithContentsOfFile:filePath];
     currentLetterData = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:nil];
-    time = 1.2;
+    time = 2;
     hasOverlay = YES;
 	self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
     if (!self.context) {
@@ -52,7 +52,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     [videoOut setAlwaysDiscardsLateVideoFrames:YES];
     //    @{(id)kCVPixelBufferPixelFormatTypeKey: [NSNumber numberWithInt:kCVPixelFormatType_32BGRA]};
     [videoOut setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
-    [videoOut setSampleBufferDelegate:self queue:dispatch_queue_create("com.michaelscaria.VidLab Video", DISPATCH_QUEUE_SERIAL)];
+    [videoOut setSampleBufferDelegate:self queue:dispatch_queue_create("com.michaelscaria.michaelscaria Video", DISPATCH_QUEUE_SERIAL)];
     
     avCaptureSession = [[AVCaptureSession alloc] init];
     [avCaptureSession beginConfiguration];
@@ -73,7 +73,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
         update = YES;
     });
     
-    CGImageRef imageRef = [[UIImage imageNamed:@"yc.png"] CGImage];
+    CGImageRef imageRef = [[UIImage imageNamed:@"test.png"] CGImage];
     NSUInteger width = CGImageGetWidth(imageRef);
     NSUInteger height = CGImageGetHeight(imageRef);
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
@@ -163,148 +163,6 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     return outBuff;
 }
 
-/*- (void)createLabelWithRect:(CGRect)rect {
-
-    dispatch_async(dispatch_get_main_queue(), ^{
-        UILabel *test = [[UILabel alloc] initWithFrame:rect];
-//        test.backgroundColor = [UIColor clearColor];
-        test.backgroundColor = [UIColor colorWithRed:.7 green:.4 blue:.3 alpha:.5];
-        test.text = @"M";
-        test.font = [UIFont fontWithName:@"HelveticaNeue-Bold" size:32];
-        test.textColor = [UIColor whiteColor];
-        [_overlayView addSubview:test];
-    });
-}
-*/
-/*- (NSArray*)getRGBAsFromImage:(UIImage*)image atX:(int)xx andY:(int)yy count:(int)count
-{
-    NSMutableArray *result = [NSMutableArray arrayWithCapacity:count];
-    
-    // First get the image into your data buffer
-    CGImageRef imageRef = [image CGImage];
-    NSUInteger width = CGImageGetWidth(imageRef);
-    NSUInteger height = CGImageGetHeight(imageRef);
-    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-    unsigned char *rawData = (unsigned char*) calloc(height * width * 4, sizeof(unsigned char));
-    NSUInteger bytesPerPixel = 4;
-    NSUInteger bytesPerRow = bytesPerPixel * width;
-    NSUInteger bitsPerComponent = 8;
-    CGContextRef context = CGBitmapContextCreate(rawData, width, height,
-                                                 bitsPerComponent, bytesPerRow, colorSpace,
-                                                 kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
-    CGColorSpaceRelease(colorSpace);
-    
-    CGContextDrawImage(context, CGRectMake(0, 0, width, height), imageRef);
-    CGContextRelease(context);
-    
-    // Now your rawData contains the image data in the RGBA8888 pixel format.
-    int byteIndex = (bytesPerRow * yy) + xx * bytesPerPixel;
-    for (int ii = 0 ; ii < count ; ++ii)
-    {
-        CGFloat red   = (rawData[byteIndex]     * 1.0) / 255.0;
-        CGFloat green = (rawData[byteIndex + 1] * 1.0) / 255.0;
-        CGFloat blue  = (rawData[byteIndex + 2] * 1.0) / 255.0;
-        CGFloat alpha = (rawData[byteIndex + 3] * 1.0) / 255.0;
-        byteIndex += 4;
-        
-        UIColor *acolor = [UIColor colorWithRed:red green:green blue:blue alpha:alpha];
-        [result addObject:acolor];
-    }
-    
-    free(rawData);
-    
-    return result;
-}*/
-
-
-/*-(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
-    
-    
-    if (!update) return;
-    update = NO;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, time * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-        for (UIView *subview in _overlayView.subviews) {
-            [subview removeFromSuperview];
-        }
-        update = YES;
-    });
-    
-    CMFormatDescriptionRef formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer);
-    
-    
-    CVPixelBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
-    
-    
-    CVReturn lock = CVPixelBufferLockBaseAddress(pixelBuffer, 0);
-    if (lock == kCVReturnSuccess) {
-        unsigned long w = 0; unsigned long h = 0; unsigned long r = 0;
-//        int red = 52; int green = 170; int blue = 220;
-        unsigned long bytesPerPixel = 0;
-        unsigned char *buffer;
-        //switch
-//        h = CVPixelBufferGetWidth(pixelBuffer); w = CVPixelBufferGetHeight(pixelBuffer); r = CVPixelBufferGetBytesPerRow(pixelBuffer);
-//        bytesPerPixel = r/h;
-//        buffer = [self rotateBuffer:sampleBuffer];
-        
-        w = CVPixelBufferGetWidth(pixelBuffer);
-        h = CVPixelBufferGetHeight(pixelBuffer);
-        r = CVPixelBufferGetBytesPerRow(pixelBuffer);
-        bytesPerPixel = r/w;
-        buffer = CVPixelBufferGetBaseAddress(pixelBuffer);
-        
-        //        UIGraphicsBeginImageContext(CGSizeMake(w, h));
-        //        CGContextRef c = UIGraphicsGetCurrentContext();
-        //        unsigned char* data = CGBitmapContextGetData(c);
-        if (buffer != NULL) {
-            for (int y = 0; y < h - 8; y++) {
-//                BOOL keyFound = NO; int xAxisKeyLength = 0;
-                for (int x = 0; x < w - 8; x++) {
-                    unsigned long offset = bytesPerPixel*((w*y)+x);
-                    if (BLACK_PIXEL(buffer, offset)) { //is black
-
-//                        offset +=2;
-                        buffer[offset] = currentImageBuffer[offset];
-                        buffer[offset + 1] = currentImageBuffer[offset + 1];
-                        buffer[offset + 2] = currentImageBuffer[offset + 2];
-                        buffer[offset + 3] = currentImageBuffer[offset + 3];
-                    }
-                    
-                }
-            }
-            
-            
-        }
-        if (connection == videoConnection) {
-            if (self.videoType == 0) self.videoType = CMFormatDescriptionGetMediaSubType( formatDescription );
-            CGColorSpaceRef colorSpaceRGB = CGColorSpaceCreateDeviceRGB();
-            NSData *_pixelsData = [NSData dataWithBytesNoCopy:buffer length:(sizeof(unsigned char)*bytesPerPixel*w*h) freeWhenDone:NO ];
-            CIImage *image = [[CIImage alloc] initWithBitmapData:_pixelsData bytesPerRow:(w*bytesPerPixel*sizeof(unsigned char)) size:CGSizeMake(w,h) format:kCIFormatARGB8 colorSpace:colorSpaceRGB];
-
-            
-            
-            //                if (hasOverlay && NO) {
-            //                    CIFilter *filter = [CIFilter filterWithName:@"CIGaussianBlur"];
-            //                    [filter setValue:image forKey:kCIInputImageKey]; [filter setValue:@22.0f forKey:@"inputRadius"];
-            //                    image = [filter valueForKey:kCIOutputImageKey];
-            //                }
-            CGAffineTransform transform = CGAffineTransformMakeRotation(-M_PI_2);
-            image = [image imageByApplyingTransform:transform];
-            CGColorSpaceRelease(colorSpaceRGB);
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
-//                UIImageView *imageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
-//                imageView.image = [self convertBitmapRGBA8ToUIImage:buffer withWidth:1136 withHeight:640];
-//                [_overlayView addSubview:imageView];
-//                
-                
-                [coreImageContext drawImage:image inRect:CGRectMake(0, 0, screenSize.width*2, screenSize.height*2) fromRect:CGRectMake(0, -1280, 720, 1280)];
-
-                [self.context presentRenderbuffer:GL_RENDERBUFFER];
-            });
-        }
-    }
-}*/
-
 -(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
     
     CMFormatDescriptionRef formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer);
@@ -336,18 +194,17 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
                 for (int y = 0; y < h - 4; y++) {
                     for (int x = 0; x < w - 4; x++) {
                         unsigned long offset = bytesPerPixel*((w*y)+x);
-                        unsigned long offsetx = offset + 3;
                         if (BLACK_PIXEL(buffer, offset)) {
-                            data[offset] = currentImageBuffer[offsetx];
-                            data[offset + 1] = currentImageBuffer[offsetx + 1];
-                            data[offset + 2] = currentImageBuffer[offsetx + 2];
-                            data[offset + 3] = currentImageBuffer[offsetx + 3];
+                            data[offset] = currentImageBuffer[offset];
+                            data[offset + 1] = currentImageBuffer[offset + 1];
+                            data[offset + 2] = currentImageBuffer[offset + 2];
+                            data[offset + 3] = currentImageBuffer[offset + 3];
                         }
                         else {
-                            data[offset] = buffer[offsetx];
-                            data[offset + 1] = buffer[offsetx + 1];
-                            data[offset + 2] = buffer[offsetx + 2];
-                            data[offset + 3] = buffer[offsetx + 3];
+                            data[offset] = buffer[offset];
+                            data[offset + 1] = buffer[offset + 1];
+                            data[offset + 2] = buffer[offset + 2];
+                            data[offset + 3] = buffer[offset + 3];
                         }
 //
                         
@@ -369,7 +226,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
         }
     }
     else {
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, time * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
             for (UIView *subview in _overlayView.subviews) {
                 [subview removeFromSuperview];
             }
@@ -402,9 +259,9 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     NSLog(@"didReceiveMemoryWarning");
-    time = 1.3;
+    time = 3;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 10 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-        time = .5;
+        time = 2;
     });
 }
 
