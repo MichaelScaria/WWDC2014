@@ -73,7 +73,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
         update = YES;
     });
     
-    CGImageRef imageRef = [[UIImage imageNamed:@"test.png"] CGImage];
+    CGImageRef imageRef = [[UIImage imageNamed:@"test.jpg"] CGImage];
     NSUInteger width = CGImageGetWidth(imageRef);
     NSUInteger height = CGImageGetHeight(imageRef);
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
