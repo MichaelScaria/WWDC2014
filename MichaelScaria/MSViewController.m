@@ -9,7 +9,7 @@
 #import "MSViewController.h"
 
 
-#define BLACK_THRESHOLD 40
+#define BLACK_THRESHOLD 50
 
 
 static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {return !(buffer[offset] > BLACK_THRESHOLD &&  buffer[offset+1] > BLACK_THRESHOLD &&  buffer[offset+2] > BLACK_THRESHOLD);}
@@ -148,7 +148,8 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
 
     dispatch_async(dispatch_get_main_queue(), ^{
         UILabel *test = [[UILabel alloc] initWithFrame:rect];
-        test.backgroundColor = [UIColor greenColor];
+//        test.backgroundColor = [UIColor clearColor];
+        test.backgroundColor = [UIColor colorWithRed:.7 green:.4 blue:.3 alpha:.5];
         test.text = @"M";
         test.font = [UIFont fontWithName:@"HelveticaNeue-Bold" size:32];
         test.textColor = [UIColor whiteColor];
@@ -179,7 +180,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     CVReturn lock = CVPixelBufferLockBaseAddress(pixelBuffer, 0);
     if (lock == kCVReturnSuccess) {
         unsigned long w = 0; unsigned long h = 0; unsigned long r = 0;
-        int red = 52; int green = 170; int blue = 220;
+//        int red = 52; int green = 170; int blue = 220;
         unsigned long bytesPerPixel = 0;
         unsigned char *buffer;
         //switch
@@ -211,10 +212,11 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
                     }
                     else if (keyFound) {
                         keyFound = NO;
-                        int threshold = 120;
+                        int threshold = 50*2;
+                        int maxThreshold = 60*2;
                         if (xAxisKeyLength > threshold) {
                             
-                            
+                            xAxisKeyLength = MIN(xAxisKeyLength, maxThreshold);
                             int leftAnchor = x - xAxisKeyLength;
                             BOOL verticalStreak = YES;
                             int yPlaceholder = y;
@@ -233,25 +235,40 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
                                     }
                                 }
                             }
-                            int verticalLength = yPlaceholder - y;
+                            int verticalLength = MIN(yPlaceholder - y, maxThreshold);
                             
                             if (verticalLength > threshold) {
-                                int one = arc4random() % 255; int two = arc4random() % 255; int three = arc4random() % 255;
+//                                int one = arc4random() % 255; int two = arc4random() % 255; int three = arc4random() % 255;
+                                int blackPixels, whitePixels;
                                  for (int topRowOfKey = y; topRowOfKey < y + verticalLength; topRowOfKey++) {
                                      for (int xOffset = leftAnchor; xOffset < x; xOffset++) {
                                          unsigned long bufferReplaceOffset = bytesPerPixel*((w*topRowOfKey)+xOffset);
                                          if (BLACK_PIXEL(buffer, bufferReplaceOffset)) {
-                                             buffer[bufferReplaceOffset] = one;
-                                             buffer[bufferReplaceOffset + 1] = two;
-                                             buffer[bufferReplaceOffset + 2] = three;
+                                             blackPixels++;
+                                             buffer[bufferReplaceOffset] = 245;
+                                             buffer[bufferReplaceOffset + 1] = 105;
+                                             buffer[bufferReplaceOffset + 2] = 155;
+                                             buffer[bufferReplaceOffset + 3] = 255;
+                                         }
+                                         else {
+                                             whitePixels++;
+                                             
+                                             buffer[bufferReplaceOffset] = 245;
+                                             buffer[bufferReplaceOffset + 1] = 185;
+                                             buffer[bufferReplaceOffset + 2] = 105;
                                              buffer[bufferReplaceOffset + 3] = 255;
                                          }
                                          
                                      }
                                  }
+//                                NSLog(@"%lu and %lu", w, h); //2.25
+//                                [self createLabelWithRect:CGRectMake((float)leftAnchor/w * self.view.frame.size.width, (float)y/h * self.view.frame.size.height, (float)(x - leftAnchor)/w * self.view.frame.size.width, (float)verticalLength/h * self.view.frame.size.height)];
+                                NSLog(@"%f", (720 - (float)y/h * self.view.frame.size.height)/2.25);
+                                if ((float)whitePixels/blackPixels < .5 || YES) {
+                                    [self createLabelWithRect:CGRectMake((720 - (float)y/h * self.view.frame.size.height)/2.25, ((float)leftAnchor/w * self.view.frame.size.width)/2.25, (float)verticalLength/h * self.view.frame.size.height, (float)(x - leftAnchor)/w * self.view.frame.size.width)];
+                                }
                                 
-                                [self createLabelWithRect:CGRectMake((float)leftAnchor/w * self.view.frame.size.width, (float)y/h * self.view.frame.size.height, (float)(x - leftAnchor)/w * self.view.frame.size.width, (float)verticalLength/h * self.view.frame.size.height)];
-                             
+
                              
                              
                              }
