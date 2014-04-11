@@ -10,6 +10,8 @@
 
 
 #define BLACK_THRESHOLD 50
+#define ORIGINAL_TIME .3
+#define MEMORY_TIME .8
 
 //typedef NS_ENUM(NSInteger, STATUS) {
 //    kInstructions,
@@ -39,7 +41,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     NSString *filePath = [[NSBundle mainBundle] pathForResource:@"m" ofType:@"json"];
     NSData *data = [NSData dataWithContentsOfFile:filePath];
     information = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:nil];
-    time = .5;
+    time = ORIGINAL_TIME;
     hasOverlay = YES;
     
     //set up camera view
@@ -79,7 +81,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     maskImage = [CIImage imageWithCGImage:cgImg];
     CGImageRelease(cgImg);
     
-    _textView.text = @"<Tap to begin> *This app strongly recommends that you to point the camera at a keyboard of a Macbook Pro with black keys else the intended purpose will not be experienced. Also try not to get any extraneous lighting on the keys so that the keys remain stark black and the image processing algorithm can capture the correct key.";
+    _textView.text = @"This app is a series of images followed by paragraphs about different aspects of my life. To make viewing the photo a little interesting to view, the photo only appears on dark pixels pulled in from your camera. Please tap to begin.";
     index = -1;
 }
 
@@ -101,36 +103,31 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     CGContextRelease(context);
 }
 
-- (IBAction)textViewTapped:(id)sender {
+- (IBAction)overlayTapped:(id)sender {
     index++;
     if (index >= information.count) {
         index = 0;
     }
     [self setBufferWithImage:[UIImage imageNamed:information[index][@"imageName"]]];
     [UIView animateWithDuration:.5 animations:^{
-        _textView.alpha = 0;
+        _overlayView.alpha = 0;
     }completion:^(BOOL isCompleted){
         _textView.text = information[index][@"info"];
         hasOverlay = NO;
     }];
 }
 
-- (IBAction)overlayTapped:(id)sender {
+
+- (IBAction)alteredTapped:(id)sender {
     NSLog(@"%@", _textView.text);
     hasOverlay = YES;
-    for (UIView *subview in _overlayView.subviews) {
+    for (UIView *subview in _alteredView.subviews) {
         [subview removeFromSuperview];
     }
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-        [_overlayView addSubview:_textView];
-        _textView.backgroundColor = [UIColor greenColor];
-        [UIView animateWithDuration:.5 delay:0 usingSpringWithDamping:.77 initialSpringVelocity:.15 options:UIViewAnimationOptionCurveLinear animations:^{
-            _textView.alpha = 1;
-        }completion:^(BOOL isCompleted){
-        }];
-    });
-    
-
+    [UIView animateWithDuration:.5 delay:0 usingSpringWithDamping:.77 initialSpringVelocity:.15 options:UIViewAnimationOptionCurveLinear animations:^{
+        _overlayView.alpha = 1;
+    }completion:^(BOOL isCompleted){
+    }];
 }
 
 - (AVCaptureDevice *)videoDeviceWithPosition:(AVCaptureDevicePosition)position
@@ -247,7 +244,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
                     dispatch_async(dispatch_get_main_queue(), ^{
                         UIImageView *imageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
                         imageView.image = img;
-                        [_overlayView addSubview:imageView];
+                        [_alteredView addSubview:imageView];
                     });
                     
                 }
@@ -259,7 +256,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, time * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
                 queuedUpdate = NO;
                 if (hasOverlay) return;
-                for (UIView *subview in _overlayView.subviews) {
+                for (UIView *subview in _alteredView.subviews) {
                     [subview removeFromSuperview];
                 }
                 update = YES;
@@ -292,10 +289,10 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     NSLog(@"didReceiveMemoryWarning");
-    time = 1;
+    time = MEMORY_TIME;
     blur = NO;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 20 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-        time = .5;
+        time = ORIGINAL_TIME;
         blur = YES;
     });
 }

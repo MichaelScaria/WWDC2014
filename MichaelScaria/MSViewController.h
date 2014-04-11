@@ -34,10 +34,11 @@
 @property (nonatomic, strong) AVCaptureDevice *device;
 @property (strong, nonatomic) EAGLContext *context;
 
+@property (strong, nonatomic) IBOutlet UIView *alteredView;
 @property (strong, nonatomic) IBOutlet GLKView *cameraView;
 @property (strong, nonatomic) IBOutlet UIView *overlayView;
 @property (strong, nonatomic) IBOutlet UITextView *textView;
-- (IBAction)textViewTapped:(id)sender;
 - (IBAction)overlayTapped:(id)sender;
+- (IBAction)alteredTapped:(id)sender;
 
 @end

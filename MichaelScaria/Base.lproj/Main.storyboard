@@ -21,6 +21,14 @@
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                             </view>
+                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1fp-za-lvm" userLabel="Altered">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                <connections>
+                                    <outletCollection property="gestureRecognizers" destination="A4q-Vv-xon" appends="YES" id="H6e-Y4-Zlw"/>
+                                </connections>
+                            </view>
                             <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4Ib-me-eOf">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -33,35 +41,34 @@
                                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <fontDescription key="fontDescription" name="HelveticaNeue-Light" family="Helvetica Neue" pointSize="18"/>
                                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
-                                        <connections>
-                                            <outletCollection property="gestureRecognizers" destination="fLo-fV-SB3" appends="YES" id="BR6-2Q-sFe"/>
-                                        </connections>
+                                        <dataDetectorType key="dataDetectorTypes" link="YES"/>
                                     </textView>
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.40000000000000002" colorSpace="calibratedWhite"/>
                                 <gestureRecognizers/>
                                 <connections>
-                                    <outletCollection property="gestureRecognizers" destination="A4q-Vv-xon" appends="YES" id="3tY-vZ-DrN"/>
+                                    <outletCollection property="gestureRecognizers" destination="fLo-fV-SB3" appends="YES" id="PgA-uP-7go"/>
                                 </connections>
                             </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
                     <connections>
+                        <outlet property="alteredView" destination="1fp-za-lvm" id="xVr-mm-hSt"/>
                         <outlet property="cameraView" destination="64k-HW-mYd" id="iLX-nM-jj9"/>
                         <outlet property="overlayView" destination="4Ib-me-eOf" id="Uoy-MX-YDz"/>
                         <outlet property="textView" destination="uR9-yF-TLC" id="gWW-Xj-QHz"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
-                <tapGestureRecognizer id="fLo-fV-SB3">
+                <tapGestureRecognizer id="fLo-fV-SB3" userLabel="Overlay">
                     <connections>
-                        <action selector="textViewTapped:" destination="vXZ-lx-hvc" id="ntd-rd-gnC"/>
+                        <action selector="overlayTapped:" destination="vXZ-lx-hvc" id="9x3-OA-cA4"/>
                     </connections>
                 </tapGestureRecognizer>
-                <tapGestureRecognizer id="A4q-Vv-xon">
+                <tapGestureRecognizer id="A4q-Vv-xon" userLabel="Altered">
                     <connections>
-                        <action selector="overlayTapped:" destination="vXZ-lx-hvc" id="f9j-4s-VyY"/>
+                        <action selector="alteredTapped:" destination="vXZ-lx-hvc" id="aLu-gW-NNP"/>
                     </connections>
                 </tapGestureRecognizer>
             </objects>
