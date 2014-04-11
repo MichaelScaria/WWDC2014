@@ -39,7 +39,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     NSString *filePath = [[NSBundle mainBundle] pathForResource:@"m" ofType:@"json"];
     NSData *data = [NSData dataWithContentsOfFile:filePath];
     information = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:nil];
-    time = 3;
+    time = .5;
     hasOverlay = YES;
     
     //set up camera view
@@ -103,15 +103,35 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
 
 - (IBAction)textViewTapped:(id)sender {
     index++;
+    if (index >= information.count) {
+        index = 0;
+    }
+    [self setBufferWithImage:[UIImage imageNamed:information[index][@"imageName"]]];
     [UIView animateWithDuration:.5 animations:^{
         _textView.alpha = 0;
     }completion:^(BOOL isCompleted){
         _textView.text = information[index][@"info"];
-        [self setBufferWithImage:[UIImage imageNamed:information[index][@"imageName"]]];
         hasOverlay = NO;
     }];
 }
 
+- (IBAction)overlayTapped:(id)sender {
+    NSLog(@"%@", _textView.text);
+    hasOverlay = YES;
+    for (UIView *subview in _overlayView.subviews) {
+        [subview removeFromSuperview];
+    }
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        [_overlayView addSubview:_textView];
+        _textView.backgroundColor = [UIColor greenColor];
+        [UIView animateWithDuration:.5 delay:0 usingSpringWithDamping:.77 initialSpringVelocity:.15 options:UIViewAnimationOptionCurveLinear animations:^{
+            _textView.alpha = 1;
+        }completion:^(BOOL isCompleted){
+        }];
+    });
+    
+
+}
 
 - (AVCaptureDevice *)videoDeviceWithPosition:(AVCaptureDevicePosition)position
 {
@@ -234,8 +254,11 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
                 
             }
         }
-        else {
+        else if (!queuedUpdate) {
+            queuedUpdate = YES;
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, time * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+                queuedUpdate = NO;
+                if (hasOverlay) return;
                 for (UIView *subview in _overlayView.subviews) {
                     [subview removeFromSuperview];
                 }
@@ -269,10 +292,10 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     NSLog(@"didReceiveMemoryWarning");
-    time = 6;
+    time = 1;
     blur = NO;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 20 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-        time = 3;
+        time = .5;
         blur = YES;
     });
 }

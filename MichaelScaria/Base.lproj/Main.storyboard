@@ -39,6 +39,10 @@
                                     </textView>
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.40000000000000002" colorSpace="calibratedWhite"/>
+                                <gestureRecognizers/>
+                                <connections>
+                                    <outletCollection property="gestureRecognizers" destination="A4q-Vv-xon" appends="YES" id="3tY-vZ-DrN"/>
+                                </connections>
                             </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
@@ -53,6 +57,11 @@
                 <tapGestureRecognizer id="fLo-fV-SB3">
                     <connections>
                         <action selector="textViewTapped:" destination="vXZ-lx-hvc" id="ntd-rd-gnC"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <tapGestureRecognizer id="A4q-Vv-xon">
+                    <connections>
+                        <action selector="overlayTapped:" destination="vXZ-lx-hvc" id="f9j-4s-VyY"/>
                     </connections>
                 </tapGestureRecognizer>
             </objects>

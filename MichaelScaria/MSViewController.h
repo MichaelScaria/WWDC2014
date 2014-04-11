@@ -24,6 +24,7 @@
     BOOL hasOverlay;
     BOOL update;
     BOOL blur;
+    BOOL queuedUpdate;
     float time;
     unsigned char*currentImageBuffer;
     NSArray *information;
@@ -37,5 +38,6 @@
 @property (strong, nonatomic) IBOutlet UIView *overlayView;
 @property (strong, nonatomic) IBOutlet UITextView *textView;
 - (IBAction)textViewTapped:(id)sender;
+- (IBAction)overlayTapped:(id)sender;
 
 @end
