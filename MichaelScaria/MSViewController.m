@@ -148,7 +148,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
         if ([type isEqualToString:@"header"]) {
             UIFont *textViewFont = [UIFont fontWithName:@"HelveticaNeue-Bold" size:25];
             CGRect textRect = [info[@"value"] boundingRectWithSize:CGSizeMake(300, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:textViewFont} context:nil];
-            UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, textRect.size.width, textRect.size.height + 4)];
+            UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, yOffset, textRect.size.width, textRect.size.height + 4)];
             label.text = info[@"value"];
             label.textColor = [UIColor whiteColor];
             label.font = textViewFont;
@@ -158,15 +158,15 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
             [_scrollView addSubview:label];
 
             
-            UIView *line = [[UIView alloc] initWithFrame:CGRectMake(15, yOffset + 10, 290, .5)];
+            UIView *line = [[UIView alloc] initWithFrame:CGRectMake(15, yOffset + 12, 290, .5)];
             line.backgroundColor = [UIColor whiteColor];
-            yOffset += 10;
+            yOffset += 11;
             [_scrollView addSubview:line];
         }
         else if ([type isEqualToString:@"text"]) {
             UIFont *textViewFont = [UIFont fontWithName:@"HelveticaNeue-Light" size:19];
             CGRect textRect = [info[@"value"] boundingRectWithSize:CGSizeMake(300, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:textViewFont} context:nil];
-            UITextView *textView = [[UITextView alloc] initWithFrame:CGRectMake(10, yOffset, textRect.size.width, textRect.size.height + 20)];
+            UITextView *textView = [[UITextView alloc] initWithFrame:CGRectMake(10, yOffset, textRect.size.width, textRect.size.height + 60)];
             textView.font = textViewFont;
             textView.dataDetectorTypes = UIDataDetectorTypeLink; //fix this
             textView.text = info[@"value"];
@@ -176,6 +176,28 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
             textView.textColor = [UIColor whiteColor];
             yOffset += textView.frame.size.height;
             [_scrollView addSubview:textView];
+        }
+        else if ([type isEqualToString:@"image"]) {
+            UIImage *image = [UIImage imageNamed:info[@"value"]];
+            UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, yOffset, 320, image.size.height)];
+            imageView.image = image;
+            yOffset += imageView.frame.size.height;
+            [_scrollView addSubview:imageView];
+            
+            if (info[@"subtitle"]) {
+                UIFont *textViewFont = [UIFont fontWithName:@"HelveticaNeue-Italic" size:11];
+                CGRect textRect = [info[@"subtitle"] boundingRectWithSize:CGSizeMake(300, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:textViewFont} context:nil];
+                UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, yOffset + 2, textRect.size.width, textRect.size.height + 4)];
+                label.text = info[@"subtitle"];
+                label.textAlignment = NSTextAlignmentCenter;
+                label.textColor = [UIColor colorWithWhite:1 alpha:.9];
+                label.font = textViewFont;
+                label.lineBreakMode = NSLineBreakByWordWrapping;
+                label.numberOfLines = 0;
+                yOffset += label.frame.size.height + 2;
+                [_scrollView addSubview:label];
+            }
+            
         }
         yOffset+=10;
     }

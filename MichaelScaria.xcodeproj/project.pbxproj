@@ -34,6 +34,7 @@
 		9E70BC2518F78D76009940EC /* crowdery.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E70BC2418F78D76009940EC /* crowdery.png */; };
 		9E70BC2718F78F47009940EC /* fortheon.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E70BC2618F78F47009940EC /* fortheon.png */; };
 		9E70BC2918F79094009940EC /* conclusion.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E70BC2818F79094009940EC /* conclusion.png */; };
+		9E70BC2B18F7B3E0009940EC /* cs193p@2x.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 9E70BC2A18F7B3E0009940EC /* cs193p@2x.jpg */; };
 		9E8E58EA18F4F38F00DCF8A0 /* m.json in Resources */ = {isa = PBXBuildFile; fileRef = 9E8E58E918F4F38F00DCF8A0 /* m.json */; };
 /* End PBXBuildFile section */
 
@@ -80,6 +81,7 @@
 		9E70BC2418F78D76009940EC /* crowdery.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = crowdery.png; sourceTree = "<group>"; };
 		9E70BC2618F78F47009940EC /* fortheon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = fortheon.png; sourceTree = "<group>"; };
 		9E70BC2818F79094009940EC /* conclusion.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = conclusion.png; sourceTree = "<group>"; };
+		9E70BC2A18F7B3E0009940EC /* cs193p@2x.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "cs193p@2x.jpg"; sourceTree = "<group>"; };
 		9E8E58E918F4F38F00DCF8A0 /* m.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = m.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -166,6 +168,7 @@
 				9E70BC2418F78D76009940EC /* crowdery.png */,
 				9E70BC2618F78F47009940EC /* fortheon.png */,
 				9E70BC2818F79094009940EC /* conclusion.png */,
+				9E70BC2A18F7B3E0009940EC /* cs193p@2x.jpg */,
 				9E07CD4D18EE2509005CAD84 /* Images.xcassets */,
 				9E07CD3C18EE2509005CAD84 /* Supporting Files */,
 			);
@@ -287,6 +290,7 @@
 				9E70BC2918F79094009940EC /* conclusion.png in Resources */,
 				9E70BC2318F78B90009940EC /* bpa.png in Resources */,
 				9E70BC1F18F78038009940EC /* me.png in Resources */,
+				9E70BC2B18F7B3E0009940EC /* cs193p@2x.jpg in Resources */,
 				9E70BC2118F78AC0009940EC /* hackathon.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
