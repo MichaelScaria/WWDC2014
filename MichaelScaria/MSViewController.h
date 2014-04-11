@@ -37,7 +37,8 @@
 @property (strong, nonatomic) IBOutlet UIView *alteredView;
 @property (strong, nonatomic) IBOutlet GLKView *cameraView;
 @property (strong, nonatomic) IBOutlet UIView *overlayView;
-@property (strong, nonatomic) IBOutlet UITextView *textView;
+@property (strong, nonatomic) IBOutlet UIScrollView *scrollView;
+
 - (IBAction)overlayTapped:(id)sender;
 - (IBAction)alteredTapped:(id)sender;
 

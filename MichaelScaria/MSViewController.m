@@ -81,8 +81,10 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     maskImage = [CIImage imageWithCGImage:cgImg];
     CGImageRelease(cgImg);
     
-    _textView.text = @"This app is a series of images followed by paragraphs about different aspects of my life. To make viewing the photo a little interesting to view, the photo only appears on dark pixels pulled in from your camera. Please tap to begin.";
+//    _textView.text = @"This app is a series of images followed by paragraphs about different aspects of my life. To make viewing the photo a little interesting to view, the photo only appears on dark pixels pulled in from your camera. Please tap to begin.";
     index = -1;
+    index = 0;
+    [self setUpOverlay];
 }
 
 - (void)setBufferWithImage:(UIImage *)image {
@@ -108,6 +110,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     if (index >= information.count) {
         index = 0;
     }
+    index = 0;
     [self setBufferWithImage:[UIImage imageNamed:information[index][@"imageName"]]];
     for (UIView *subview in _alteredView.subviews) {
         [subview removeFromSuperview];
@@ -116,7 +119,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
         _overlayView.alpha = 0;
         _alteredView.alpha = 1;
     }completion:^(BOOL isCompleted){
-        _textView.text = information[index][@"info"];
+        [self setUpOverlay];
         hasOverlay = NO;
     }];
 }
@@ -132,6 +135,51 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
         _overlayView.alpha = 1;
     }completion:^(BOOL isCompleted){
     }];
+}
+
+- (void)setUpOverlay {
+    for (UIView *subview in _scrollView.subviews) {
+        [subview removeFromSuperview];
+    }
+    int yOffset = 0;
+    NSArray *infoArray = information[index][@"info"];
+    for (NSDictionary *info in infoArray) {
+        NSString *type = info[@"type"];
+        if ([type isEqualToString:@"header"]) {
+            UIFont *textViewFont = [UIFont fontWithName:@"HelveticaNeue-Bold" size:25];
+            CGRect textRect = [info[@"value"] boundingRectWithSize:CGSizeMake(300, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:textViewFont} context:nil];
+            UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, textRect.size.width, textRect.size.height + 4)];
+            label.text = info[@"value"];
+            label.textColor = [UIColor whiteColor];
+            label.font = textViewFont;
+            label.lineBreakMode = NSLineBreakByWordWrapping;
+            label.numberOfLines = 0;
+            yOffset += label.frame.size.height;
+            [_scrollView addSubview:label];
+
+            
+            UIView *line = [[UIView alloc] initWithFrame:CGRectMake(15, yOffset + 10, 290, .5)];
+            line.backgroundColor = [UIColor whiteColor];
+            yOffset += 10;
+            [_scrollView addSubview:line];
+        }
+        else if ([type isEqualToString:@"text"]) {
+            UIFont *textViewFont = [UIFont fontWithName:@"HelveticaNeue-Light" size:19];
+            CGRect textRect = [info[@"value"] boundingRectWithSize:CGSizeMake(300, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:textViewFont} context:nil];
+            UITextView *textView = [[UITextView alloc] initWithFrame:CGRectMake(10, yOffset, textRect.size.width, textRect.size.height + 20)];
+            textView.font = textViewFont;
+            textView.dataDetectorTypes = UIDataDetectorTypeLink; //fix this
+            textView.text = info[@"value"];
+            textView.backgroundColor = [UIColor clearColor];
+            textView.scrollEnabled = NO;
+            textView.editable = NO;
+            textView.textColor = [UIColor whiteColor];
+            yOffset += textView.frame.size.height;
+            [_scrollView addSubview:textView];
+        }
+        yOffset+=10;
+    }
+    _scrollView.contentSize = CGSizeMake(320, yOffset);
 }
 
 - (AVCaptureDevice *)videoDeviceWithPosition:(AVCaptureDevicePosition)position
