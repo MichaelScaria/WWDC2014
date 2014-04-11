@@ -9,9 +9,9 @@
 #import "MSViewController.h"
 
 
-#define BLACK_THRESHOLD 50
+#define BLACK_THRESHOLD 45
 #define ORIGINAL_TIME .3
-#define MEMORY_TIME .8
+#define MEMORY_TIME 1.2
 
 //typedef NS_ENUM(NSInteger, STATUS) {
 //    kInstructions,
@@ -109,8 +109,12 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
         index = 0;
     }
     [self setBufferWithImage:[UIImage imageNamed:information[index][@"imageName"]]];
+    for (UIView *subview in _alteredView.subviews) {
+        [subview removeFromSuperview];
+    }
     [UIView animateWithDuration:.5 animations:^{
         _overlayView.alpha = 0;
+        _alteredView.alpha = 1;
     }completion:^(BOOL isCompleted){
         _textView.text = information[index][@"info"];
         hasOverlay = NO;
@@ -119,12 +123,12 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
 
 
 - (IBAction)alteredTapped:(id)sender {
-    NSLog(@"%@", _textView.text);
     hasOverlay = YES;
     for (UIView *subview in _alteredView.subviews) {
         [subview removeFromSuperview];
     }
-    [UIView animateWithDuration:.5 delay:0 usingSpringWithDamping:.77 initialSpringVelocity:.15 options:UIViewAnimationOptionCurveLinear animations:^{
+    [UIView animateWithDuration:.5 animations:^{
+        _alteredView.alpha = 0;
         _overlayView.alpha = 1;
     }completion:^(BOOL isCompleted){
     }];
@@ -216,7 +220,6 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
                 UIGraphicsBeginImageContext(CGSizeMake(w, h));
                 CGContextRef c = UIGraphicsGetCurrentContext();
                 unsigned char* data = CGBitmapContextGetData(c);
-                NSLog(@"bytesPerPixel:%lu", bytesPerPixel);
                 if (data != NULL) {
                     
                     for (int y = 0; y < h - 4; y++) {
@@ -268,7 +271,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
         if (self.videoType == 0) self.videoType = CMFormatDescriptionGetMediaSubType( formatDescription );
         CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
         CIImage *image = [CIImage imageWithCVPixelBuffer:pixelBuffer];
-        if (hasOverlay) {
+        if (hasOverlay && blur) {
             CIFilter *filter = [CIFilter filterWithName:@"CIGaussianBlur"];
             [filter setValue:image forKey:kCIInputImageKey]; [filter setValue:@18.0f forKey:@"inputRadius"];
             image = [filter valueForKey:kCIOutputImageKey];
