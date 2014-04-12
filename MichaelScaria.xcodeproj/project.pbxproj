@@ -28,10 +28,16 @@
 		9E07CD7318EE2545005CAD84 /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E07CD7218EE2545005CAD84 /* AssetsLibrary.framework */; };
 		9E07CD7518EE2549005CAD84 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E07CD7418EE2549005CAD84 /* Accelerate.framework */; };
 		9E07CD7718EE2551005CAD84 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E07CD7618EE2551005CAD84 /* GLKit.framework */; };
+		9E20AFA618F901E100F61797 /* atthack@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E20AFA518F901E100F61797 /* atthack@2x.png */; };
+		9E20AFA818F903C500F61797 /* graph@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E20AFA718F903C500F61797 /* graph@2x.png */; };
+		9E20AFAA18F906A800F61797 /* bpama@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E20AFA918F906A800F61797 /* bpama@2x.png */; };
+		9E20AFAC18F9095100F61797 /* game@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E20AFAB18F9095100F61797 /* game@2x.png */; };
+		9E20AFAF18F90C0800F61797 /* yc@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E20AFAD18F90C0800F61797 /* yc@2x.png */; };
+		9E20AFB018F90C0800F61797 /* crowdery@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E20AFAE18F90C0800F61797 /* crowdery@2x.png */; };
 		9E70BC1F18F78038009940EC /* me.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E70BC1E18F78038009940EC /* me.png */; };
 		9E70BC2118F78AC0009940EC /* hackathon.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E70BC2018F78AC0009940EC /* hackathon.png */; };
 		9E70BC2318F78B90009940EC /* bpa.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E70BC2218F78B90009940EC /* bpa.png */; };
-		9E70BC2518F78D76009940EC /* crowdery.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E70BC2418F78D76009940EC /* crowdery.png */; };
+		9E70BC2518F78D76009940EC /* cryc.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E70BC2418F78D76009940EC /* cryc.png */; };
 		9E70BC2718F78F47009940EC /* fortheon.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E70BC2618F78F47009940EC /* fortheon.png */; };
 		9E70BC2918F79094009940EC /* conclusion.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E70BC2818F79094009940EC /* conclusion.png */; };
 		9E70BC2B18F7B3E0009940EC /* cs193p@2x.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 9E70BC2A18F7B3E0009940EC /* cs193p@2x.jpg */; };
@@ -75,10 +81,16 @@
 		9E07CD7218EE2545005CAD84 /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
 		9E07CD7418EE2549005CAD84 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		9E07CD7618EE2551005CAD84 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
+		9E20AFA518F901E100F61797 /* atthack@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "atthack@2x.png"; sourceTree = "<group>"; };
+		9E20AFA718F903C500F61797 /* graph@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "graph@2x.png"; sourceTree = "<group>"; };
+		9E20AFA918F906A800F61797 /* bpama@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "bpama@2x.png"; sourceTree = "<group>"; };
+		9E20AFAB18F9095100F61797 /* game@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "game@2x.png"; sourceTree = "<group>"; };
+		9E20AFAD18F90C0800F61797 /* yc@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "yc@2x.png"; sourceTree = "<group>"; };
+		9E20AFAE18F90C0800F61797 /* crowdery@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "crowdery@2x.png"; sourceTree = "<group>"; };
 		9E70BC1E18F78038009940EC /* me.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = me.png; sourceTree = "<group>"; };
 		9E70BC2018F78AC0009940EC /* hackathon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hackathon.png; sourceTree = "<group>"; };
 		9E70BC2218F78B90009940EC /* bpa.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bpa.png; sourceTree = "<group>"; };
-		9E70BC2418F78D76009940EC /* crowdery.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = crowdery.png; sourceTree = "<group>"; };
+		9E70BC2418F78D76009940EC /* cryc.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cryc.png; sourceTree = "<group>"; };
 		9E70BC2618F78F47009940EC /* fortheon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = fortheon.png; sourceTree = "<group>"; };
 		9E70BC2818F79094009940EC /* conclusion.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = conclusion.png; sourceTree = "<group>"; };
 		9E70BC2A18F7B3E0009940EC /* cs193p@2x.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "cs193p@2x.jpg"; sourceTree = "<group>"; };
@@ -165,10 +177,16 @@
 				9E70BC1E18F78038009940EC /* me.png */,
 				9E70BC2018F78AC0009940EC /* hackathon.png */,
 				9E70BC2218F78B90009940EC /* bpa.png */,
-				9E70BC2418F78D76009940EC /* crowdery.png */,
+				9E70BC2418F78D76009940EC /* cryc.png */,
 				9E70BC2618F78F47009940EC /* fortheon.png */,
 				9E70BC2818F79094009940EC /* conclusion.png */,
 				9E70BC2A18F7B3E0009940EC /* cs193p@2x.jpg */,
+				9E20AFA518F901E100F61797 /* atthack@2x.png */,
+				9E20AFA718F903C500F61797 /* graph@2x.png */,
+				9E20AFA918F906A800F61797 /* bpama@2x.png */,
+				9E20AFAB18F9095100F61797 /* game@2x.png */,
+				9E20AFAD18F90C0800F61797 /* yc@2x.png */,
+				9E20AFAE18F90C0800F61797 /* crowdery@2x.png */,
 				9E07CD4D18EE2509005CAD84 /* Images.xcassets */,
 				9E07CD3C18EE2509005CAD84 /* Supporting Files */,
 			);
@@ -281,12 +299,18 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9E20AFB018F90C0800F61797 /* crowdery@2x.png in Resources */,
 				9E07CD4E18EE2509005CAD84 /* Images.xcassets in Resources */,
 				9E70BC2718F78F47009940EC /* fortheon.png in Resources */,
+				9E20AFAF18F90C0800F61797 /* yc@2x.png in Resources */,
 				9E07CD4018EE2509005CAD84 /* InfoPlist.strings in Resources */,
+				9E20AFA618F901E100F61797 /* atthack@2x.png in Resources */,
+				9E20AFA818F903C500F61797 /* graph@2x.png in Resources */,
 				9E07CD4918EE2509005CAD84 /* Main.storyboard in Resources */,
 				9E8E58EA18F4F38F00DCF8A0 /* m.json in Resources */,
-				9E70BC2518F78D76009940EC /* crowdery.png in Resources */,
+				9E70BC2518F78D76009940EC /* cryc.png in Resources */,
+				9E20AFAC18F9095100F61797 /* game@2x.png in Resources */,
+				9E20AFAA18F906A800F61797 /* bpama@2x.png in Resources */,
 				9E70BC2918F79094009940EC /* conclusion.png in Resources */,
 				9E70BC2318F78B90009940EC /* bpa.png in Resources */,
 				9E70BC1F18F78038009940EC /* me.png in Resources */,

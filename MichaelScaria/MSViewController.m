@@ -82,8 +82,6 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     maskImage = [CIImage imageWithCGImage:cgImg];
     CGImageRelease(cgImg);
     
-//    _textView.text = @"This app is a series of images followed by paragraphs about different aspects of my life. To make viewing the photo a little interesting to view, the photo only appears on dark pixels pulled in from your camera. Please tap to begin.";
-    index = -1;
     index = 0;
     [self setUpOverlay];
 }
@@ -111,7 +109,6 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     if (index >= information.count) {
         index = 0;
     }
-    index = 0;
     [self setBufferWithImage:[UIImage imageNamed:information[index][@"imageName"]]];
     for (UIView *subview in _alteredView.subviews) {
         [subview removeFromSuperview];
@@ -142,6 +139,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     for (UIView *subview in _scrollView.subviews) {
         [subview removeFromSuperview];
     }
+    [_scrollView setContentOffset:CGPointZero];
     int yOffset = 0;
     NSArray *infoArray = information[index][@"info"];
     for (NSDictionary *info in infoArray) {
@@ -150,7 +148,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
             UIFont *textViewFont = [UIFont fontWithName:@"HelveticaNeue-Bold" size:38];
 //            UIFont *textViewFont = [UIFont fontWithName:@"Montserrat-Regular" size:35];
             CGRect textRect = [info[@"value"] boundingRectWithSize:CGSizeMake(300, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:textViewFont} context:nil];
-            UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, yOffset, textRect.size.width, textRect.size.height + 4)];
+            UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, yOffset, MAX(300,textRect.size.width), textRect.size.height + 4)];
             label.text = info[@"value"];
             label.textColor = [UIColor whiteColor];
             label.font = textViewFont;
@@ -192,7 +190,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
             [_scrollView addSubview:imageView];
             
             if (info[@"subtitle"]) {
-                UIFont *textViewFont = [UIFont fontWithName:@"HelveticaNeue-ThinItalic" size:11];
+                UIFont *textViewFont = [UIFont fontWithName:@"HelveticaNeue-ThinItalic" size:12];
                 CGRect textRect = [info[@"subtitle"] boundingRectWithSize:CGSizeMake(300, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:textViewFont} context:nil];
                 UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, yOffset + 2, textRect.size.width, textRect.size.height + 4)];
                 label.text = info[@"subtitle"];
@@ -210,7 +208,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
             
             UIFont *textViewFont = [UIFont fontWithName:@"HelveticaNeue-ThinItalic" size:16];
             CGRect textRect = [info[@"value"] boundingRectWithSize:CGSizeMake(270, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:textViewFont} context:nil];
-            UITextView *textView = [[UITextView alloc] initWithFrame:CGRectMake(40, yOffset, textRect.size.width, textRect.size.height + 20)];
+            UITextView *textView = [[UITextView alloc] initWithFrame:CGRectMake(40, yOffset, MAX(270,textRect.size.width), textRect.size.height + 18)];
             textView.font = textViewFont;
             textView.dataDetectorTypes = UIDataDetectorTypeLink; //fix this
             textView.text = info[@"value"];
