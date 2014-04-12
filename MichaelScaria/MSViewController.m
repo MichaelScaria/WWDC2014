@@ -12,6 +12,7 @@
 #define BLACK_THRESHOLD 45
 #define ORIGINAL_TIME .3
 #define MEMORY_TIME 1.2
+#define TINT_COLOR [UIColor colorWithRed:87/255.0 green:173/255.0 blue:104/255.0 alpha:1]
 
 //typedef NS_ENUM(NSInteger, STATUS) {
 //    kInstructions,
@@ -146,7 +147,8 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     for (NSDictionary *info in infoArray) {
         NSString *type = info[@"type"];
         if ([type isEqualToString:@"header"]) {
-            UIFont *textViewFont = [UIFont fontWithName:@"HelveticaNeue-Bold" size:25];
+            UIFont *textViewFont = [UIFont fontWithName:@"HelveticaNeue-Bold" size:38];
+//            UIFont *textViewFont = [UIFont fontWithName:@"Montserrat-Regular" size:35];
             CGRect textRect = [info[@"value"] boundingRectWithSize:CGSizeMake(300, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:textViewFont} context:nil];
             UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, yOffset, textRect.size.width, textRect.size.height + 4)];
             label.text = info[@"value"];
@@ -159,19 +161,24 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
 
             
             UIView *line = [[UIView alloc] initWithFrame:CGRectMake(15, yOffset + 12, 290, .5)];
-            line.backgroundColor = [UIColor whiteColor];
+//            line.backgroundColor = [UIColor whiteColor];
+            line.backgroundColor = TINT_COLOR;
+
             yOffset += 11;
             [_scrollView addSubview:line];
         }
         else if ([type isEqualToString:@"text"]) {
-            UIFont *textViewFont = [UIFont fontWithName:@"HelveticaNeue-Light" size:19];
+            UIFont *textViewFont = [UIFont fontWithName:@"HelveticaNeue-Thin" size:19];
+//            UIFont *textViewFont = [UIFont fontWithName:@"Montserrat-Regular" size:19];
+
             CGRect textRect = [info[@"value"] boundingRectWithSize:CGSizeMake(300, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:textViewFont} context:nil];
-            UITextView *textView = [[UITextView alloc] initWithFrame:CGRectMake(10, yOffset, textRect.size.width, textRect.size.height + 60)];
+            UITextView *textView = [[UITextView alloc] initWithFrame:CGRectMake(10, yOffset, textRect.size.width, textRect.size.height + 55)];
             textView.font = textViewFont;
             textView.dataDetectorTypes = UIDataDetectorTypeLink; //fix this
             textView.text = info[@"value"];
             textView.backgroundColor = [UIColor clearColor];
             textView.scrollEnabled = NO;
+            textView.tintColor = TINT_COLOR;
             textView.editable = NO;
             textView.textColor = [UIColor whiteColor];
             yOffset += textView.frame.size.height;
@@ -185,18 +192,38 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
             [_scrollView addSubview:imageView];
             
             if (info[@"subtitle"]) {
-                UIFont *textViewFont = [UIFont fontWithName:@"HelveticaNeue-Italic" size:11];
+                UIFont *textViewFont = [UIFont fontWithName:@"HelveticaNeue-ThinItalic" size:11];
                 CGRect textRect = [info[@"subtitle"] boundingRectWithSize:CGSizeMake(300, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:textViewFont} context:nil];
                 UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, yOffset + 2, textRect.size.width, textRect.size.height + 4)];
                 label.text = info[@"subtitle"];
                 label.textAlignment = NSTextAlignmentCenter;
-                label.textColor = [UIColor colorWithWhite:1 alpha:.9];
+                label.textColor = [UIColor colorWithWhite:1 alpha:.8];
                 label.font = textViewFont;
                 label.lineBreakMode = NSLineBreakByWordWrapping;
                 label.numberOfLines = 0;
                 yOffset += label.frame.size.height + 2;
                 [_scrollView addSubview:label];
             }
+            
+        }
+        else if ([type isEqualToString:@"emphasis"]) {
+            
+            UIFont *textViewFont = [UIFont fontWithName:@"HelveticaNeue-ThinItalic" size:16];
+            CGRect textRect = [info[@"value"] boundingRectWithSize:CGSizeMake(270, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:textViewFont} context:nil];
+            UITextView *textView = [[UITextView alloc] initWithFrame:CGRectMake(40, yOffset, textRect.size.width, textRect.size.height + 20)];
+            textView.font = textViewFont;
+            textView.dataDetectorTypes = UIDataDetectorTypeLink; //fix this
+            textView.text = info[@"value"];
+            textView.backgroundColor = [UIColor clearColor];
+            textView.scrollEnabled = NO;
+            textView.editable = NO;
+            textView.textColor = [UIColor colorWithWhite:1 alpha:.8];
+            yOffset += textView.frame.size.height;
+            [_scrollView addSubview:textView];
+
+            UIView *block = [[UIView alloc] initWithFrame:CGRectMake(16, textView.frame.origin.y + 7, 15, textView.frame.size.height - 7)];
+            block.backgroundColor = TINT_COLOR;
+            [_scrollView addSubview:block];
             
         }
         yOffset+=10;
