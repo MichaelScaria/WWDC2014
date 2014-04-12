@@ -30,6 +30,10 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    if (TARGET_IPHONE_SIMULATOR) {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"iOS Simulator Detected" message:@"To fully experience the app's features, we reccommend that you deploy on  a device" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+        [alert show];
+    }
     hasOverlay = YES;
     blur = YES;
     //get text values
@@ -314,11 +318,22 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
                     for (int y = 0; y < h - 4; y++) {
                         for (int x = 0; x < w - 4; x++) {
                             unsigned long offset = bytesPerPixel*((w*y)+x);
+                            unsigned long noffset = bytesPerPixel*(w*h);
                             if (BLACK_PIXEL(buffer, offset)) {
-                                data[offset] = currentImageBuffer[offset];
-                                data[offset + 1] = currentImageBuffer[offset + 1];
-                                data[offset + 2] = currentImageBuffer[offset + 2];
-                                data[offset + 3] = currentImageBuffer[offset + 3];
+//                                data[offset] = currentImageBuffer[offset];
+//                                data[offset + 1] = currentImageBuffer[offset + 1];
+//                                data[offset + 2] = currentImageBuffer[offset + 2];
+//                                data[offset + 3] = currentImageBuffer[offset + 3];
+//                                data[offset] = currentImageBuffer[noffset - 4];
+//                                data[offset + 1] = currentImageBuffer[noffset -3];
+//                                data[offset + 2] = currentImageBuffer[noffset - 2];
+//                                data[offset + 3] = currentImageBuffer[noffset - 1];
+                                data[offset] = 240;
+                                data[offset + 1] = 134;
+                                data[offset + 2] = 65;
+                                data[offset + 3] = 255;
+
+//                                NSLog(@"%d %d %d %d", currentImageBuffer[noffset - 4], currentImageBuffer[noffset -3], currentImageBuffer[noffset - 2], currentImageBuffer[noffset - 1]);
                             }
                             else {
                                 data[offset] = buffer[offset];
