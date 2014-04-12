@@ -34,6 +34,7 @@
 		9E20AFAC18F9095100F61797 /* game@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E20AFAB18F9095100F61797 /* game@2x.png */; };
 		9E20AFAF18F90C0800F61797 /* yc@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E20AFAD18F90C0800F61797 /* yc@2x.png */; };
 		9E20AFB018F90C0800F61797 /* crowdery@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E20AFAE18F90C0800F61797 /* crowdery@2x.png */; };
+		9E20AFB218F90EFF00F61797 /* fr@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E20AFB118F90EFF00F61797 /* fr@2x.png */; };
 		9E70BC1F18F78038009940EC /* me.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E70BC1E18F78038009940EC /* me.png */; };
 		9E70BC2118F78AC0009940EC /* hackathon.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E70BC2018F78AC0009940EC /* hackathon.png */; };
 		9E70BC2318F78B90009940EC /* bpa.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E70BC2218F78B90009940EC /* bpa.png */; };
@@ -87,6 +88,7 @@
 		9E20AFAB18F9095100F61797 /* game@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "game@2x.png"; sourceTree = "<group>"; };
 		9E20AFAD18F90C0800F61797 /* yc@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "yc@2x.png"; sourceTree = "<group>"; };
 		9E20AFAE18F90C0800F61797 /* crowdery@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "crowdery@2x.png"; sourceTree = "<group>"; };
+		9E20AFB118F90EFF00F61797 /* fr@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "fr@2x.png"; sourceTree = "<group>"; };
 		9E70BC1E18F78038009940EC /* me.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = me.png; sourceTree = "<group>"; };
 		9E70BC2018F78AC0009940EC /* hackathon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hackathon.png; sourceTree = "<group>"; };
 		9E70BC2218F78B90009940EC /* bpa.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bpa.png; sourceTree = "<group>"; };
@@ -187,6 +189,7 @@
 				9E20AFAB18F9095100F61797 /* game@2x.png */,
 				9E20AFAD18F90C0800F61797 /* yc@2x.png */,
 				9E20AFAE18F90C0800F61797 /* crowdery@2x.png */,
+				9E20AFB118F90EFF00F61797 /* fr@2x.png */,
 				9E07CD4D18EE2509005CAD84 /* Images.xcassets */,
 				9E07CD3C18EE2509005CAD84 /* Supporting Files */,
 			);
@@ -313,6 +316,7 @@
 				9E20AFAA18F906A800F61797 /* bpama@2x.png in Resources */,
 				9E70BC2918F79094009940EC /* conclusion.png in Resources */,
 				9E70BC2318F78B90009940EC /* bpa.png in Resources */,
+				9E20AFB218F90EFF00F61797 /* fr@2x.png in Resources */,
 				9E70BC1F18F78038009940EC /* me.png in Resources */,
 				9E70BC2B18F7B3E0009940EC /* cs193p@2x.jpg in Resources */,
 				9E70BC2118F78AC0009940EC /* hackathon.png in Resources */,
