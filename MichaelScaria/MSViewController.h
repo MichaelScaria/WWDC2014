@@ -10,7 +10,7 @@
 
 @import GLKit; @import AVFoundation; @import CoreVideo; @import Accelerate;
 
-@interface MSViewController : UIViewController<AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate> {
+@interface MSViewController : UIViewController<AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate, UIWebViewDelegate> {
     AVCaptureSession *avCaptureSession;
     CIContext *coreImageContext;
     CIImage *maskImage;

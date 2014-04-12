@@ -165,8 +165,6 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
         }
         else if ([type isEqualToString:@"text"]) {
             /*UIFont *textViewFont = [UIFont fontWithName:@"HelveticaNeue-Thin" size:19];
-//            UIFont *textViewFont = [UIFont fontWithName:@"Montserrat-Regular" size:19];
-
             CGRect textRect = [info[@"value"] boundingRectWithSize:CGSizeMake(300, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:textViewFont} context:nil];
             UITextView *textView = [[UITextView alloc] initWithFrame:CGRectMake(10, yOffset, textRect.size.width, textRect.size.height + 55)];
             textView.font = textViewFont;
@@ -179,7 +177,30 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
             textView.textColor = [UIColor whiteColor];
             yOffset += textView.frame.size.height;
             [_scrollView addSubview:textView];*/
+            
+            UIFont *webViewFont = [UIFont fontWithName:@"HelveticaNeue-Thin" size:19];
+            CGRect textRect = [info[@"value"] boundingRectWithSize:CGSizeMake(300, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:webViewFont} context:nil];
+            
+            UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectMake(10, yOffset, textRect.size.width, textRect.size.height + 55)];
+            webView.delegate = self;
+            webView.opaque = NO;
+            webView.backgroundColor = [UIColor clearColor];
+            for (id subview in webView.subviews)
+            {
+                // turn off scrolling in UIWebView
+                if ([[subview class] isSubclassOfClass:[UIScrollView class]]) {
+                    ((UIScrollView *)subview).bounces = NO;
+                    ((UIScrollView *)subview).scrollEnabled = NO;
+                }
+                
+                // make UIWebView transparent
+                if ([subview isKindOfClass:[UIImageView class]]) ((UIImageView *)subview).hidden = YES;
+            }
+            [webView loadHTMLString:[self embedHTMLWithFontName:@"HelveticaNeue-Thin" size:19 text:info[@"value"]] baseURL:nil];
+            yOffset += webView.frame.size.height;
+            [_scrollView addSubview:webView];
         }
+        
         else if ([type isEqualToString:@"image"]) {
             UIImage *image = [UIImage imageNamed:info[@"value"]];
             UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, yOffset, 320, image.size.height)];
@@ -227,12 +248,59 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     _scrollView.contentSize = CGSizeMake(320, yOffset);
 }
 
+
+#pragma mark - Link
+
+- (NSString *)embedHTMLWithFontName:(NSString *)fontName size:(CGFloat)size text:(NSString *)theText
+{
+    NSString *embedHTML = @"\
+        <html><head>\
+        <style type=\"text/css\">\
+        body { background-color:transparent;font-family: \"%@\";font-size: %gpx;color: #666666; word-wrap: break-word;}\
+        a    { text-decoration:none; color:rgba(35,110,216,1);}\
+        </style>\
+        </head><body style=\"margin:0\">\
+        %@\
+        </body></html>";
+    return [NSString stringWithFormat:embedHTML, fontName, size, theText];
+}
+
+
+- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
+{
+    if( navigationType == UIWebViewNavigationTypeLinkClicked )
+    {
+        if ([[UIApplication sharedApplication] canOpenURL:request.URL]) [[UIApplication sharedApplication ] openURL:request.URL];
+        
+        return NO;
+    }
+    
+    return YES;
+}
+
+
+- (void)webViewDidFinishLoad:(UIWebView *)webView
+{
+    CGRect frame = webView.frame;
+    frame.size.height = 1;
+    webView.frame = frame;
+    
+    CGSize fittingSize = [webView sizeThatFits:CGSizeZero];
+    frame.size = fittingSize;
+    webView.frame = frame;
+    
+}
+
+
+
+#pragma mark Capture
+
 - (AVCaptureDevice *)videoDeviceWithPosition:(AVCaptureDevicePosition)position
 {
     NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
     for (AVCaptureDevice *aDevice in devices)
-        if ([aDevice position] == position)
-            return aDevice;
+    if ([aDevice position] == position)
+    return aDevice;
     
     return nil;
 }
@@ -250,10 +318,6 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     }
     CGColorSpaceRelease(colorSpace);
 }
-
-
-
-#pragma mark Capture
 
 - (unsigned char*) rotateBuffer: (CMSampleBufferRef) sampleBuffer
 {
@@ -396,6 +460,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
         blur = YES;
     });
 }
+
 
 
 
