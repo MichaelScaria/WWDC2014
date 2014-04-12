@@ -164,7 +164,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
             [_scrollView addSubview:line];
         }
         else if ([type isEqualToString:@"text"]) {
-            UIFont *textViewFont = [UIFont fontWithName:@"HelveticaNeue-Thin" size:19];
+            /*UIFont *textViewFont = [UIFont fontWithName:@"HelveticaNeue-Thin" size:19];
 //            UIFont *textViewFont = [UIFont fontWithName:@"Montserrat-Regular" size:19];
 
             CGRect textRect = [info[@"value"] boundingRectWithSize:CGSizeMake(300, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:textViewFont} context:nil];
@@ -178,7 +178,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
             textView.editable = NO;
             textView.textColor = [UIColor whiteColor];
             yOffset += textView.frame.size.height;
-            [_scrollView addSubview:textView];
+            [_scrollView addSubview:textView];*/
         }
         else if ([type isEqualToString:@"image"]) {
             UIImage *image = [UIImage imageNamed:info[@"value"]];
@@ -217,7 +217,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
             yOffset += textView.frame.size.height;
             [_scrollView addSubview:textView];
 
-            UIView *block = [[UIView alloc] initWithFrame:CGRectMake(16, textView.frame.origin.y + 7, 15, textView.frame.size.height - 12)];
+            UIView *block = [[UIView alloc] initWithFrame:CGRectMake(16, textView.frame.origin.y + 7, 15, textView.frame.size.height - 15)];
             block.backgroundColor = TINT_COLOR;
             [_scrollView addSubview:block];
             
@@ -318,20 +318,11 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
                     for (int y = 0; y < h - 4; y++) {
                         for (int x = 0; x < w - 4; x++) {
                             unsigned long offset = bytesPerPixel*((w*y)+x);
-                            unsigned long noffset = bytesPerPixel*(w*h);
                             if (BLACK_PIXEL(buffer, offset)) {
-//                                data[offset] = currentImageBuffer[offset];
-//                                data[offset + 1] = currentImageBuffer[offset + 1];
-//                                data[offset + 2] = currentImageBuffer[offset + 2];
-//                                data[offset + 3] = currentImageBuffer[offset + 3];
-//                                data[offset] = currentImageBuffer[noffset - 4];
-//                                data[offset + 1] = currentImageBuffer[noffset -3];
-//                                data[offset + 2] = currentImageBuffer[noffset - 2];
-//                                data[offset + 3] = currentImageBuffer[noffset - 1];
-                                data[offset] = 240;
-                                data[offset + 1] = 134;
-                                data[offset + 2] = 65;
-                                data[offset + 3] = 255;
+                                data[offset] = currentImageBuffer[offset];
+                                data[offset + 1] = currentImageBuffer[offset + 1];
+                                data[offset + 2] = currentImageBuffer[offset + 2];
+                                data[offset + 3] = currentImageBuffer[offset + 3];
 
 //                                NSLog(@"%d %d %d %d", currentImageBuffer[noffset - 4], currentImageBuffer[noffset -3], currentImageBuffer[noffset - 2], currentImageBuffer[noffset - 1]);
                             }
