@@ -10,7 +10,7 @@
 
 
 #define BLACK_THRESHOLD 45
-#define ORIGINAL_TIME .3
+#define ORIGINAL_TIME .4
 #define MEMORY_TIME 1.2
 #define TINT_COLOR [UIColor colorWithRed:87/255.0 green:173/255.0 blue:104/255.0 alpha:1]
 
@@ -192,7 +192,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
             if (info[@"subtitle"]) {
                 UIFont *textViewFont = [UIFont fontWithName:@"HelveticaNeue-ThinItalic" size:12];
                 CGRect textRect = [info[@"subtitle"] boundingRectWithSize:CGSizeMake(300, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:textViewFont} context:nil];
-                UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, yOffset + 2, textRect.size.width, textRect.size.height + 4)];
+                UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, yOffset + 2, MAX(300,textRect.size.width), textRect.size.height + 4)];
                 label.text = info[@"subtitle"];
                 label.textAlignment = NSTextAlignmentCenter;
                 label.textColor = [UIColor colorWithWhite:1 alpha:.8];
@@ -208,7 +208,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
             
             UIFont *textViewFont = [UIFont fontWithName:@"HelveticaNeue-ThinItalic" size:16];
             CGRect textRect = [info[@"value"] boundingRectWithSize:CGSizeMake(270, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:textViewFont} context:nil];
-            UITextView *textView = [[UITextView alloc] initWithFrame:CGRectMake(40, yOffset, MAX(270,textRect.size.width), textRect.size.height + 18)];
+            UITextView *textView = [[UITextView alloc] initWithFrame:CGRectMake(40, yOffset, MAX(270,textRect.size.width), textRect.size.height + 24)];
             textView.font = textViewFont;
             textView.dataDetectorTypes = UIDataDetectorTypeLink; //fix this
             textView.text = info[@"value"];
@@ -219,12 +219,12 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
             yOffset += textView.frame.size.height;
             [_scrollView addSubview:textView];
 
-            UIView *block = [[UIView alloc] initWithFrame:CGRectMake(16, textView.frame.origin.y + 7, 15, textView.frame.size.height - 7)];
+            UIView *block = [[UIView alloc] initWithFrame:CGRectMake(16, textView.frame.origin.y + 7, 15, textView.frame.size.height - 12)];
             block.backgroundColor = TINT_COLOR;
             [_scrollView addSubview:block];
             
         }
-        yOffset+=10;
+        yOffset+=5;
     }
     _scrollView.contentSize = CGSizeMake(320, yOffset);
 }
