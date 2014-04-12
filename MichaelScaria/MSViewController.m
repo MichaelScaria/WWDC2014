@@ -14,12 +14,6 @@
 #define MEMORY_TIME 1.2
 #define TINT_COLOR [UIColor colorWithRed:87/255.0 green:173/255.0 blue:104/255.0 alpha:1]
 
-//typedef NS_ENUM(NSInteger, STATUS) {
-//    kInstructions,
-//    kMe,
-//    kHackathons
-//};
-
 
 static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {return !(buffer[offset] > BLACK_THRESHOLD &&  buffer[offset+1] > BLACK_THRESHOLD &&  buffer[offset+2] > BLACK_THRESHOLD);}
 
@@ -107,7 +101,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
 - (IBAction)overlayTapped:(id)sender {
     index++;
     if (index >= information.count) {
-        index = 0;
+        index = 1;
     }
     [self setBufferWithImage:[UIImage imageNamed:information[index][@"imageName"]]];
     for (UIView *subview in _alteredView.subviews) {
@@ -389,8 +383,10 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     NSLog(@"didReceiveMemoryWarning");
     time = MEMORY_TIME;
     blur = NO;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 20 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 15 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
         time = ORIGINAL_TIME;
+    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 30 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
         blur = YES;
     });
 }
