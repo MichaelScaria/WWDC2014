@@ -15,7 +15,7 @@
 #define TINT_COLOR [UIColor colorWithRed:87/255.0 green:173/255.0 blue:104/255.0 alpha:1]
 
 
-static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {return !(buffer[offset] > BLACK_THRESHOLD &&  buffer[offset+1] > BLACK_THRESHOLD &&  buffer[offset+2] > BLACK_THRESHOLD);}
+static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {return (buffer[offset] < BLACK_THRESHOLD && buffer[offset+1] < BLACK_THRESHOLD && buffer[offset+2] < BLACK_THRESHOLD);}
 
 @interface MSViewController ()
 @property (readwrite) CMVideoCodecType videoType;
@@ -100,6 +100,8 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     
     CGContextDrawImage(context, CGRectMake(0, 0, width, height), imageRef);
     CGContextRelease(context);
+
+    
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer*)otherGestureRecognizer {
@@ -285,6 +287,10 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     return YES;
 }
 
+- (void)image:(UIImage *)image finishedSavingWithError:(NSError *)imageError contextInfo:(void *)contextInfo {
+    test = YES;
+}
+
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
@@ -385,11 +391,11 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
                 unsigned long bytesPerPixel = 0;
                 unsigned char *buffer;
                 //switch
-                h = CVPixelBufferGetWidth(pixelBuffer);
-                w = CVPixelBufferGetHeight(pixelBuffer);
-                r = CVPixelBufferGetBytesPerRow(pixelBuffer);
+                h = CVPixelBufferGetWidth(pixelBuffer); w = CVPixelBufferGetHeight(pixelBuffer); r = CVPixelBufferGetBytesPerRow(pixelBuffer);
                 bytesPerPixel = r/h;
                 buffer = [self rotateBuffer:sampleBuffer];
+                
+                
                 UIGraphicsBeginImageContext(CGSizeMake(w, h));
                 CGContextRef c = UIGraphicsGetCurrentContext();
                 unsigned char* data = CGBitmapContextGetData(c);
@@ -399,26 +405,29 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
                         for (int x = 0; x < w - 4; x++) {
                             unsigned long offset = bytesPerPixel*((w*y)+x);
                             if (BLACK_PIXEL(buffer, offset)) {
+                                
                                 data[offset] = currentImageBuffer[offset];
                                 data[offset + 1] = currentImageBuffer[offset + 1];
                                 data[offset + 2] = currentImageBuffer[offset + 2];
                                 data[offset + 3] = currentImageBuffer[offset + 3];
-
-//                                NSLog(@"%d %d %d %d", currentImageBuffer[noffset - 4], currentImageBuffer[noffset -3], currentImageBuffer[noffset - 2], currentImageBuffer[noffset - 1]);
+                                
+                                
                             }
                             else {
                                 data[offset] = buffer[offset];
                                 data[offset + 1] = buffer[offset + 1];
                                 data[offset + 2] = buffer[offset + 2];
                                 data[offset + 3] = buffer[offset + 3];
+
                             }
                             
                         }
                     }
-                    
                     UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
                     
                     UIGraphicsEndImageContext();
+                    if (!test) UIImageWriteToSavedPhotosAlbum(img, self, @selector(image:finishedSavingWithError:contextInfo:), nil);
+
                     dispatch_async(dispatch_get_main_queue(), ^{
                         UIImageView *imageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
                         imageView.image = img;
@@ -456,8 +465,8 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
         
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            [coreImageContext drawImage:image inRect:CGRectMake(0, 0, screenSize.width*2, screenSize.height*2) fromRect:CGRectMake(0, -1280, 720, 1280)];
-            [self.context presentRenderbuffer:GL_RENDERBUFFER];
+//            [coreImageContext drawImage:image inRect:CGRectMake(0, 0, screenSize.width*2, screenSize.height*2) fromRect:CGRectMake(0, -1280, 720, 1280)];
+//            [self.context presentRenderbuffer:GL_RENDERBUFFER];
         });
     }
     

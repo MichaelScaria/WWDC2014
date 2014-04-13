@@ -29,6 +29,11 @@
     unsigned char*currentImageBuffer;
     NSArray *information;
     int index;
+    
+    
+    
+    
+    BOOL test;
 }
 
 @property (nonatomic, strong) AVCaptureDevice *device;
