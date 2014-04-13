@@ -58,11 +58,13 @@
                 <tapGestureRecognizer id="fLo-fV-SB3" userLabel="Overlay">
                     <connections>
                         <action selector="overlayTapped:" destination="vXZ-lx-hvc" id="9x3-OA-cA4"/>
+                        <outlet property="delegate" destination="vXZ-lx-hvc" id="C3i-87-iKz"/>
                     </connections>
                 </tapGestureRecognizer>
                 <tapGestureRecognizer id="A4q-Vv-xon" userLabel="Altered">
                     <connections>
                         <action selector="alteredTapped:" destination="vXZ-lx-hvc" id="aLu-gW-NNP"/>
+                        <outlet property="delegate" destination="vXZ-lx-hvc" id="bQr-Ck-OgV"/>
                     </connections>
                 </tapGestureRecognizer>
             </objects>

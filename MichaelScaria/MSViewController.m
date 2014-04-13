@@ -102,6 +102,10 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     CGContextRelease(context);
 }
 
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer*)otherGestureRecognizer {
+    return YES;
+}
+
 - (IBAction)overlayTapped:(id)sender {
     index++;
     if (index >= information.count) {
@@ -140,6 +144,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     [_scrollView setContentOffset:CGPointZero];
     int yOffset = 0;
     NSArray *infoArray = information[index][@"info"];
+    int tag = 1;
     for (NSDictionary *info in infoArray) {
         NSString *type = info[@"type"];
         if ([type isEqualToString:@"header"]) {
@@ -152,6 +157,8 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
             label.font = textViewFont;
             label.lineBreakMode = NSLineBreakByWordWrapping;
             label.numberOfLines = 0;
+            label.tag = tag;
+            tag++;
             yOffset += label.frame.size.height;
             [_scrollView addSubview:label];
 
@@ -159,29 +166,17 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
             UIView *line = [[UIView alloc] initWithFrame:CGRectMake(15, yOffset + 12, 290, .5)];
 //            line.backgroundColor = [UIColor whiteColor];
             line.backgroundColor = TINT_COLOR;
-
+            line.tag = tag;
+            tag++;
             yOffset += 11;
             [_scrollView addSubview:line];
         }
         else if ([type isEqualToString:@"text"]) {
-            /*UIFont *textViewFont = [UIFont fontWithName:@"HelveticaNeue-Thin" size:19];
-            CGRect textRect = [info[@"value"] boundingRectWithSize:CGSizeMake(300, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:textViewFont} context:nil];
-            UITextView *textView = [[UITextView alloc] initWithFrame:CGRectMake(10, yOffset, textRect.size.width, textRect.size.height + 55)];
-            textView.font = textViewFont;
-            textView.dataDetectorTypes = UIDataDetectorTypeLink; //fix this
-            textView.text = info[@"value"];
-            textView.backgroundColor = [UIColor clearColor];
-            textView.scrollEnabled = NO;
-            textView.tintColor = TINT_COLOR;
-            textView.editable = NO;
-            textView.textColor = [UIColor whiteColor];
-            yOffset += textView.frame.size.height;
-            [_scrollView addSubview:textView];*/
             
             UIFont *webViewFont = [UIFont fontWithName:@"HelveticaNeue-Thin" size:19];
             CGRect textRect = [info[@"value"] boundingRectWithSize:CGSizeMake(300, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:webViewFont} context:nil];
             
-            UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectMake(10, yOffset, textRect.size.width, textRect.size.height + 55)];
+            UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectMake(10, yOffset, textRect.size.width, textRect.size.height + 35)];
             webView.delegate = self;
             webView.opaque = NO;
             webView.backgroundColor = [UIColor clearColor];
@@ -197,14 +192,20 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
                 if ([subview isKindOfClass:[UIImageView class]]) ((UIImageView *)subview).hidden = YES;
             }
             [webView loadHTMLString:[self embedHTMLWithFontName:@"HelveticaNeue-Thin" size:19 text:info[@"value"]] baseURL:nil];
+            webView.tag = tag;
+            tag++;
             yOffset += webView.frame.size.height;
             [_scrollView addSubview:webView];
+            
+            
         }
         
         else if ([type isEqualToString:@"image"]) {
             UIImage *image = [UIImage imageNamed:info[@"value"]];
             UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, yOffset, 320, image.size.height)];
             imageView.image = image;
+            imageView.tag = tag;
+            tag++;
             yOffset += imageView.frame.size.height;
             [_scrollView addSubview:imageView];
             
@@ -218,6 +219,8 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
                 label.font = textViewFont;
                 label.lineBreakMode = NSLineBreakByWordWrapping;
                 label.numberOfLines = 0;
+                label.tag = tag;
+                tag++;
                 yOffset += label.frame.size.height + 2;
                 [_scrollView addSubview:label];
             }
@@ -235,15 +238,19 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
             textView.scrollEnabled = NO;
             textView.editable = NO;
             textView.textColor = [UIColor colorWithWhite:1 alpha:.8];
+            textView.tag = tag;
+            tag++;
             yOffset += textView.frame.size.height;
             [_scrollView addSubview:textView];
 
-            UIView *block = [[UIView alloc] initWithFrame:CGRectMake(16, textView.frame.origin.y + 7, 15, textView.frame.size.height - 15)];
+            UIView *block = [[UIView alloc] initWithFrame:CGRectMake(16, textView.frame.origin.y + 7, 15, textView.frame.size.height - 17)];
+            block.tag = tag;
+            tag++;
             block.backgroundColor = TINT_COLOR;
             [_scrollView addSubview:block];
             
         }
-        yOffset+=5;
+        yOffset+=15;
     }
     _scrollView.contentSize = CGSizeMake(320, yOffset);
 }
@@ -256,8 +263,8 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     NSString *embedHTML = @"\
         <html><head>\
         <style type=\"text/css\">\
-        body { background-color:transparent;font-family: \"%@\";font-size: %gpx;color: #666666; word-wrap: break-word;}\
-        a    { text-decoration:none; color:rgba(35,110,216,1);}\
+        body { background-color:transparent;font-family: \"%@\";font-size: %gpx;color: rgba(180,180,180,1); word-wrap: break-word;}\
+        a    { text-decoration:none; color:rgba(87,173,104,1);}\
         </style>\
         </head><body style=\"margin:0\">\
         %@\
@@ -281,6 +288,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
+    int originalHeight = webView.frame.size.height;
     CGRect frame = webView.frame;
     frame.size.height = 1;
     webView.frame = frame;
@@ -289,6 +297,14 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     frame.size = fittingSize;
     webView.frame = frame;
     
+    int offset = webView.frame.size.height - originalHeight;
+    
+    for (UIView *subview in _scrollView.subviews) {
+        if (subview.tag > webView.tag) {
+            subview.center = CGPointMake(subview.center.x, subview.center.y + offset);
+        }
+    }
+    _scrollView.contentSize = CGSizeMake(_scrollView.contentSize.width, _scrollView.contentSize.height + offset);
 }
 
 
