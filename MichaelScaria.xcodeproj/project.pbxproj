@@ -42,7 +42,6 @@
 		9E70BC2718F78F47009940EC /* fortheon.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E70BC2618F78F47009940EC /* fortheon.png */; };
 		9E70BC2918F79094009940EC /* conclusion.png in Resources */ = {isa = PBXBuildFile; fileRef = 9E70BC2818F79094009940EC /* conclusion.png */; };
 		9E70BC2B18F7B3E0009940EC /* cs193p@2x.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 9E70BC2A18F7B3E0009940EC /* cs193p@2x.jpg */; };
-		9E8E58EA18F4F38F00DCF8A0 /* m.json in Resources */ = {isa = PBXBuildFile; fileRef = 9E8E58E918F4F38F00DCF8A0 /* m.json */; };
 		9EE25FDD18FB922B00484360 /* data.json in Resources */ = {isa = PBXBuildFile; fileRef = 9EE25FDC18FB922B00484360 /* data.json */; };
 /* End PBXBuildFile section */
 
@@ -97,7 +96,6 @@
 		9E70BC2618F78F47009940EC /* fortheon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = fortheon.png; sourceTree = "<group>"; };
 		9E70BC2818F79094009940EC /* conclusion.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = conclusion.png; sourceTree = "<group>"; };
 		9E70BC2A18F7B3E0009940EC /* cs193p@2x.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "cs193p@2x.jpg"; sourceTree = "<group>"; };
-		9E8E58E918F4F38F00DCF8A0 /* m.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = m.json; sourceTree = "<group>"; };
 		9EE25FDC18FB922B00484360 /* data.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = data.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -177,7 +175,6 @@
 				9E07CD4718EE2509005CAD84 /* Main.storyboard */,
 				9E07CD4A18EE2509005CAD84 /* MSViewController.h */,
 				9E07CD4B18EE2509005CAD84 /* MSViewController.m */,
-				9E8E58E918F4F38F00DCF8A0 /* m.json */,
 				9EE25FDC18FB922B00484360 /* data.json */,
 				9E70BC1E18F78038009940EC /* me.png */,
 				9E70BC2018F78AC0009940EC /* hackathon.png */,
@@ -313,7 +310,6 @@
 				9E20AFA618F901E100F61797 /* atthack@2x.png in Resources */,
 				9E20AFA818F903C500F61797 /* graph@2x.png in Resources */,
 				9E07CD4918EE2509005CAD84 /* Main.storyboard in Resources */,
-				9E8E58EA18F4F38F00DCF8A0 /* m.json in Resources */,
 				9E70BC2518F78D76009940EC /* cryc.png in Resources */,
 				9E20AFAC18F9095100F61797 /* game@2x.png in Resources */,
 				9E20AFAA18F906A800F61797 /* bpama@2x.png in Resources */,
