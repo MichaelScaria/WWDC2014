@@ -10,7 +10,7 @@
 
 @import GLKit; @import AVFoundation; @import CoreVideo; @import Accelerate;
 
-@interface MSViewController : UIViewController<AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate, UIWebViewDelegate, UIGestureRecognizerDelegate> {
+@interface MSViewController : UIViewController<AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate, UIWebViewDelegate, UIGestureRecognizerDelegate, UIScrollViewDelegate> {
     AVCaptureSession *avCaptureSession;
     CIContext *coreImageContext;
     CIImage *maskImage;
@@ -32,8 +32,8 @@
     
     
     
-    
-    BOOL test;
+    UIWebView *webView;
+    BOOL swipedDown;
 }
 
 @property (nonatomic, strong) AVCaptureDevice *device;

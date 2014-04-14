@@ -13,6 +13,7 @@
 #define ORIGINAL_TIME .4
 #define MEMORY_TIME 1.2
 #define TINT_COLOR [UIColor colorWithRed:87/255.0 green:173/255.0 blue:104/255.0 alpha:1]
+#define DRAG_THRESHOLD -40
 
 
 static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {return (buffer[offset] < BLACK_THRESHOLD && buffer[offset+1] < BLACK_THRESHOLD && buffer[offset+2] < BLACK_THRESHOLD);}
@@ -109,6 +110,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
 }
 
 - (IBAction)overlayTapped:(id)sender {
+    if (_scrollView.decelerating || _scrollView.dragging) return;
     index++;
     if (index >= information.count) {
         index = 1;
@@ -178,11 +180,11 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
             UIFont *webViewFont = [UIFont fontWithName:@"HelveticaNeue-Thin" size:19];
             CGRect textRect = [info[@"value"] boundingRectWithSize:CGSizeMake(300, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:webViewFont} context:nil];
             
-            UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectMake(10, yOffset, textRect.size.width, textRect.size.height + 35)];
-            webView.delegate = self;
-            webView.opaque = NO;
-            webView.backgroundColor = [UIColor clearColor];
-            for (id subview in webView.subviews)
+            UIWebView *textWebView = [[UIWebView alloc] initWithFrame:CGRectMake(10, yOffset, textRect.size.width, textRect.size.height + 35)];
+            textWebView.delegate = self;
+            textWebView.opaque = NO;
+            textWebView.backgroundColor = [UIColor clearColor];
+            for (id subview in textWebView.subviews)
             {
                 // turn off scrolling in UIWebView
                 if ([[subview class] isSubclassOfClass:[UIScrollView class]]) {
@@ -193,11 +195,11 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
                 // make UIWebView transparent
                 if ([subview isKindOfClass:[UIImageView class]]) ((UIImageView *)subview).hidden = YES;
             }
-            [webView loadHTMLString:[self embedHTMLWithFontName:@"HelveticaNeue-Thin" size:19 text:info[@"value"]] baseURL:nil];
-            webView.tag = tag;
+            [textWebView loadHTMLString:[self embedHTMLWithFontName:@"HelveticaNeue-Thin" size:19 text:info[@"value"]] baseURL:nil];
+            textWebView.tag = tag;
             tag++;
-            yOffset += webView.frame.size.height;
-            [_scrollView addSubview:webView];
+            yOffset += textWebView.frame.size.height;
+            [_scrollView addSubview:textWebView];
             
             
         }
@@ -258,6 +260,20 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
 }
 
 
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    NSLog(@"didReceiveMemoryWarning");
+    time = MEMORY_TIME;
+    blur = NO;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 15 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        time = ORIGINAL_TIME;
+    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 30 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        blur = YES;
+    });
+}
+
+
 #pragma mark - Link
 
 - (NSString *)embedHTMLWithFontName:(NSString *)fontName size:(CGFloat)size text:(NSString *)theText
@@ -275,21 +291,41 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
 }
 
 
-- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
+- (BOOL)webView:(UIWebView *)aWebView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
+    if (aWebView == webView) return YES;
     if( navigationType == UIWebViewNavigationTypeLinkClicked )
     {
-        if ([[UIApplication sharedApplication] canOpenURL:request.URL]) [[UIApplication sharedApplication ] openURL:request.URL];
-        
+        if ([request.URL.absoluteString hasPrefix:@"https://itunes.apple.com/us/app/"] && [[UIApplication sharedApplication] canOpenURL:request.URL]) {
+            [[UIApplication sharedApplication ] openURL:request.URL];
+        }
+        else {
+            if (!webView) {
+                webView = [[UIWebView alloc] initWithFrame:self.view.bounds];
+            }
+            [webView loadRequest:request];
+            webView.scrollView.delegate = self;
+            webView.center = self.view.center;
+            [self.view addSubview:webView];
+            webView.alpha = 0;
+            webView.transform = CGAffineTransformMakeScale(.5, .5);
+            [UIView animateWithDuration:.5 delay:0 usingSpringWithDamping:.6 initialSpringVelocity:.2 options:UIViewAnimationOptionCurveLinear animations:^{
+                webView.alpha = 1;
+                webView.transform = CGAffineTransformIdentity;
+            } completion:nil];
+            
+
+        }
+        index--;
+        [self alteredTapped:nil];
+        hasOverlay = YES;
+
         return NO;
     }
     
     return YES;
 }
 
-- (void)image:(UIImage *)image finishedSavingWithError:(NSError *)imageError contextInfo:(void *)contextInfo {
-    test = YES;
-}
 
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
@@ -374,7 +410,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
 }
 
 -(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
-    
+    if ([webView isDescendantOfView:self.view]) return;
     CMFormatDescriptionRef formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer);
     
     if (!hasOverlay) {
@@ -426,7 +462,6 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
                     UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
                     
                     UIGraphicsEndImageContext();
-                    if (!test) UIImageWriteToSavedPhotosAlbum(img, self, @selector(image:finishedSavingWithError:contextInfo:), nil);
 
                     dispatch_async(dispatch_get_main_queue(), ^{
                         UIImageView *imageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
@@ -465,28 +500,41 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
         
         
         dispatch_async(dispatch_get_main_queue(), ^{
-//            [coreImageContext drawImage:image inRect:CGRectMake(0, 0, screenSize.width*2, screenSize.height*2) fromRect:CGRectMake(0, -1280, 720, 1280)];
-//            [self.context presentRenderbuffer:GL_RENDERBUFFER];
+            [coreImageContext drawImage:image inRect:CGRectMake(0, 0, screenSize.width*2, screenSize.height*2) fromRect:CGRectMake(0, -1280, 720, 1280)];
+            [self.context presentRenderbuffer:GL_RENDERBUFFER];
         });
     }
     
 }
 
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    NSLog(@"didReceiveMemoryWarning");
-    time = MEMORY_TIME;
-    blur = NO;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 15 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-        time = ORIGINAL_TIME;
-    });
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 30 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-        blur = YES;
-    });
+#pragma mark - ScrollView
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+    if (scrollView != webView.scrollView) return;
+    [self swipeDown];
 }
 
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+    [self swipeDown];
+}
 
+- (void)swipeDown {
+    if (webView.scrollView.contentOffset.y < DRAG_THRESHOLD && !swipedDown) {
+        swipedDown = YES;
+        [webView endEditing:YES];
+
+        [UIView animateWithDuration:.4 animations:^{
+            webView.center = CGPointMake(webView.center.x, self.view.center.y + self.view.frame.size.height);
+        }completion:^(BOOL isCompleted){
+            swipedDown = NO;
+            [webView removeFromSuperview];
+            //to visually clear the webview
+            [webView stringByEvaluatingJavaScriptFromString:@"document.body.innerHTML = \"\";"];
+        }];
+    }
+    
+}
 
 
 @end
