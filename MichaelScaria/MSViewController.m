@@ -38,7 +38,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     hasOverlay = YES;
     blur = YES;
     //get text values
-    NSString *filePath = [[NSBundle mainBundle] pathForResource:@"m" ofType:@"json"];
+    NSString *filePath = [[NSBundle mainBundle] pathForResource:@"data" ofType:@"json"];
     NSData *data = [NSData dataWithContentsOfFile:filePath];
     information = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:nil];
     time = ORIGINAL_TIME;

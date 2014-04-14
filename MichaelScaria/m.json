@@ -1,52 +1,53 @@
-[
- 
-    {
-         "info":[{"type" : "header", "value" : "Michael Scaria"},
-                 {"type" : "text", "value" : "The information in this app is split into a sections that each reflect upon a major aspect in my professional background. To make things a bit more interesting, before each section, there is a picture associated with it that can only be viewed on dark pixels pulled in from the camera. Navigate through the app by tapping the screen when you have completed a section or when you are done looking at an image. Have fun trying to see everything!"}]
-     },{
-         "imageName" : "me.png",
-         "info":[{"type" : "header", "value" : "Turning Silicon into Gold"},
-                 {"type" : "text", "value" : "My name is Michael Scaria, and I am a senior at John Horn High School in Mesquite, Texas. I will be attending UT Austin as a CompSci major this fall. I am super excited to formally learn computer science as I had to teach myself everything I know because my school does not have a computer science program. I entered the world of programming in ninth grade with my first 'Hello World' application on the iOS Simluator. With the help of Stanford's CS193p and Objective C for dummies, I was able to get my first internship the following summer at <a href='http://getliquid.com'>Liquid Enterprises</a>, where I made <a href='https://itunes.apple.com/us/app/mycost-by-liquid/id488426432?mt=8'>MyCost</a>. MyCost was a financial app that helped users visually understand how much their money was worth in relation to their time and everyday purchses."},
-                 {"type" : "image", "value" : "cs193p.jpg", "subtitle" : "The Stanford iOS Application Development class taught by Alan Cannistraro"},
-                 {"type" : "text", "value" : "The summer of 2012, I got a job as an iOS Developer at Novation Mobile, where I also learned Ruby on Rails to maintain and update apps such as <a href='https://itunes.apple.com/us/app/ignio/id449745152?mt=8'>Ignio</a> and <a href='https://itunes.apple.com/us/app/qwiqq-quick-easy-way-to-sell/id453258253?mt=8'>Qwiqq</a>. Learning how a backend server interacted with a iOS app was monumental in my development as programmer, which later helped my start Crowdery with my friends. Academically, I self-studied and got a 5 on the AP Computer Science A test during my junior year, being the first in my district to ever do so."},
-                 {"type" : "emphasis", "value" : "Learning to balance a full AP course load and launching a startup required complete mastery over my time management skills."},
-                 {"type" : "text", "value" : "Apart from programming, I consider myself a master bhangra dancer, chinese food aficionado and an emerging rapper."}]
-     },
-     {
-         "imageName" : "hackathon.png",
-         "info":[{"type" : "header", "value" : "Hackathons"}, {"type" : "text", "value" : "It was when I placed in my first AT&T Mobile Hackathon in my sophomore year that I was instantly hooked. Though I know the chances of winning are slim to none, the excitement I receive while demoing my project makes the sleep-deprvied adventure totally worth it."},
-                 {"type" : "image", "value" : "atthack.png", "subtitle" : "The hardware hack we built at AT&T M2M Hackathon. RealService sends push notifications to waiters when a cup is nearly empty to make the entire restaurant visit continue smoothly."},
-                 {"type" : "text", "value" : "Consequently, I have been able to network with high school and college students all over the country that share my passion for technology. I recently placed in Caltech's HackTECH Top 10 with <a href='https://itunes.apple.com/us/app/graphsearch/id842961117?ls=1&mt=8'>Graph</a>, an iPad application that allows users to make custom searches across their social networks."},
-                 {"type" : "image", "value" : "graph.png", "subtitle" : "Graph provides graphical data analytics for social networks. Top 10 in HackTECH over 184 teams across the country."},
-                 {"type" : "text", "value" : "One of my hackathon projects helped me land an interview with Apple's iAd team. AdSense was my hack for AT&T's Developer Summit 2014. Although we didn't completely finish, AdSense connected to the NeuroSky headset and Qualcomm Gimbal proximity chip to deliver location and mood based ads to the user. Many of my hackathon projects can be found on my <a href='http://github.com/michaelscaria'>Github</a>."}]
-     },
-     {
-         "imageName" : "bpa.png",
-         "info":[{"type" : "header", "value" : "BPA"},
-                 {"type" : "text", "value" : "Business Professionals of America is an interscholastic league with competitions ranging from accounting to extemporaneous speech to computer applications. In my sophomore year, I learned C++ and competed in the regionals C++ competition and got 1st. Also in my junior year, I made a Cocos2d OSX game for the Software Engineering team event. Being the only developer on the team was like a double-edged sword because it taught me how detailed the architecture of a game was but also required me to work late nights with no one to help when I ran across trouble."},
-                 {"type" : "image", "value" : "game.png", "subtitle" : "Battle to BPA was the game I built with Cocos2d for the Software Engineering event."},
-                 {"type" : "text", "value" : "This year, I placed first in the state of Texas for Mobile Applications and will be competing in Indianapolis this May for the national title. In the mobile applications competition, students are given a prompt to complete within the timeframe for the pre-submit deadline. After the pre-submission, the students are required to create a presentation with highlight the unique features about their app and explain the engineering process they went through."},
-                 {"type" : "emphasis", "value" : "\"Pack your bags!\" was our go-to phrase when referring to nationals. I am extremely proud and excited to be attending the National Leadership Conference this May."},
-                 {"type" : "image", "value" : "bpama.png", "subtitle" : "First place in state in BPA's Mobile Application compeition in Texas with BitWeather, an interactive weather app."}]
-     },
-     {
-         "imageName" : "cryc.png",
-         "info":[{"type" : "header", "value" : "Crowdery"},
-                 {"type" : "text", "value" : "During my junior year, I was the first engineer at <a href='http://crowdery.com'>Crowdery</a>, a startup my friends and I created. Crowdery is a platform that enables brands to de-risk product designs before making them by crowdsourcing customer votes and delivering demographic-specific analytics. I created the backend with Ruby on Rails. Creating Crowdery was my first experience starting a product from scratch, we  learned the pros and cons of using frameworks such as Backbone.js for the frontend and the overhead of using wrappers like ActiveRecord."},
-                 {"type" : "image", "value" : "yc.png", "subtitle" : "Y Combinator is an American seed accelerator, started in March 2005. Y Combinator provides seed money, advice, and connections at two three-month programs per year."},
-                 {"type" : "text", "value" :"We applied and got in <a href='http://ycombinator.com'>YCombinator's</a> S'13 session, where I went to California for the first time in my life. The experience was amazing and I know I defintely want to return to the Bay Area as soon as possible. Unfortunately, at the end of the summer, we all unanimously decided to return school and turn the project over to the only employee that stayed behind."},
-                 {"type" : "image", "value" : "crowdery.png", "subtitle" : "Crowdery"}]
-             },
-     {
-         "imageName" : "fortheon.png",
-         "info":[{"type" : "header", "value" : "Fortheon"},
-                 {"type" : "text", "value" : "I am the co-founder of <a href='http://fortheon.com'>Fortheon</a>, my latest project. Fortheon is a multi-language platform as a service that allows users to deploy and scale their web applications on it."},
-                 {"type" : "image", "value" : "fr.png", "subtitle" : "Fortheon"},
-                 {"type" : "text", "value" : "What makes Fortheon different from many of the current hosting solutions is that we offer our services for a much cheaper price and we give our customers full control over their servers. My co-founder and I both handle the technical aspects while I also try to spread the word and get more users. Our plan is to work on Fortheon this summer in San Francisco."}]
-     },
-     {
-         "imageName" : "conclusion.png",
-         "info":[{"type" : "header", "value" : "Conclusion"},
-                 {"type" : "text", "value" : "Congratulations, you made it this far! My PennApps 2014 hack inspired me to create this app. <a href='https://github.com/scribe-pennapps/ios'>Scribe</a>, allowed users to take a picture of a sketch of a website have it mapped out to bootstrap elements to create a site on the spot dynamically. I was the iOS developer on the team and due to time constraints, I wasn't able to do the image processing natively and had to send the data to the OpenCV library on the server. With this app, I had the time to learn how to read in a buffer of raw pixel values and manipulate the final output. For some reason, I wasn't able to fix the color bug in the picture was replaced the black pixels. I would love to have the opportunity to speak to Apple engineers to identify bugs in my image processing algorithm and make my app better."}]
-     }
- ]
+ [
+  
+  {
+  "info":[{"type" : "header", "value" : "Michael Scaria"},
+          {"type" : "text", "value" : "The information in this app is split into many sections that each reflect upon a major aspect in my professional background. To make things a bit more interesting, before each section, there is a picture associated with it that can only be viewed on dark pixels pulled in from the camera. Navigate through the app by tapping the screen when you have completed a section or when you are done looking at an image. Have fun trying to see everything!"}]
+  },{
+  "imageName" : "me.png",
+  "info":[{"type" : "header", "value" :  "Background"},
+          {"type" : "text", "value" : "My name is Michael Scaria, and I'm a senior at John Horn High School in Mesquite, Texas. I will be attending UT Austin as a CompSci major this fall. I am super excited to finally learn about development formally, since I had to teach myself everything I know because my school doesn't have a computer science program. I entered the world of programming in ninth grade with my first 'Hello World!' application in the iOS Simluator. With the help of Stanford's CS193p course and 'Objective C For Dummies,' I was able to get my first internship the following summer at <a href='http://getliquid.com'>Liquid Enterprises</a>, where I made <a href='https://itunes.apple.com/us/app/mycost-by-liquid/id488426432?mt=8'>MyCost</a>. MyCost is a financial app that helped users visually understand how much their money was worth in relation to their time and everyday purchases."},
+          {"type" : "image", "value" : "cs193p.jpg", "subtitle" : "The Stanford iOS Application Development class taught by Alan Cannistraro"},
+          {"type" : "text", "value" : "In the summer of 2012, I got a job as an iOS Developer at <a href='http://novationmobile.com'>Novation Mobile</a>, where I also learned Ruby on Rails to maintain and update apps such as <a href='https://itunes.apple.com/us/app/ignio/id449745152?mt=8'>Ignio</a> and <a href='https://itunes.apple.com/us/app/qwiqq-quick-easy-way-to-sell/id453258253?mt=8'>Qwiqq</a>. Learning how a backend server interacted with a iOS app was monumental in my development as programmer, which later helped me start <a href='http://www.crowdery.com'>Crowdery</a> with my friends. Academically, I self-studied and got a 5 on the AP Computer Science A test during my junior year, being the first in my district to ever do so."},
+          {"type" : "emphasis", "value" : "Learning to balance a full AP course load and launching a startup required complete mastery over my time management skills."},
+          {"type" : "text", "value" : "Apart from programming, I consider myself a master bhangra dancer, chinese food aficionado, and an emerging rapper."}]
+  },
+  {
+  "imageName" : "hackathon.png",
+  "info":[{"type" : "header", "value" : "Hackathons"}, {"type" : "text", "value" : "It was when I placed in my first AT&T Mobile Hackathon in my sophomore year that I was instantly hooked. Though I know the chances of winning are slim to none, the excitement I receive while pitching a project that I flushed out in about 24 hours makes the sleep-deprvied adventure totally worth it."},
+          {"type" : "image", "value" : "atthack.png", "subtitle" : "The hardware hack we built at AT&T M2M Hackathon. RealService sends push notifications to waiters when a cup is nearly empty to make the entire dine-in experience progress more efficiently."},
+          {"type" : "text", "value" : "Consequently, I have been able to network with high school and college students all over the country that share my passion for technology. I recently placed in Caltech's HackTECH Top 10 with <a href='https://itunes.apple.com/us/app/graphsearch/id842961117?ls=1&mt=8'>Graph</a>, an iPad application that allows users to make custom searches across their social networks."},
+          {"type" : "image", "value" : "graph.png", "subtitle" : "Graph provides graphical data analytics for social networks. Top 10 in HackTECH over 184 teams across the country."},
+          {"type" : "text", "value" : "One of my hackathon projects helped me land an interview with Apple's iAd team. AdSense was my hack for AT&T's Developer Summit 2014. Although we didn't completely finish, AdSense connected to the NeuroSky headset and Qualcomm Gimbal proximity chip to deliver location and mood based ads to the user. Many of my hackathon projects can be found on my <a href='http://github.com/michaelscaria'>Github</a>."}]
+  },
+  {
+  "imageName" : "bpa.png",
+  "info":[{"type" : "header", "value" : "BPA"},
+          {"type" : "text", "value" : "Business Professionals of America is an interscholastic league with competitions ranging from accounting to extemporaneous speech to computer applications. In my sophomore year, I learned C++ and competed in the regional's competition and got first. As a junior, I decided to step up my game and make a fully-fledged Cocos2d OSX game for the Software Engineering team event. Being the only developer on the team was like a double-edged sword because it taught me how extensive the infrastructure of a game needed to be, but it also required me to work late nights with no help when I ran into bugs."},
+          {"type" : "image", "value" : "game.png", "subtitle" : "'Battle to BPA' was the game I built with Cocos2d for the Software Engineering event."},
+          {"type" : "text", "value" : "This year, I placed first in the state of Texas for Mobile Applications and will be competing in Indianapolis this May for the national title. In the this event, students are given a prompt to complete by a deadline that is before the date of the actual conference. After the pre-submission, the students are required to create a presentation which highlight the unique features about their app and explain the engineering process they went through."},
+          {"type" : "emphasis", "value" : "\"Pack your bags!\" was our go-to phrase when referring to nationals. I am extremely proud and excited to be attending the National Leadership Conference this May."},
+          {"type" : "image", "value" : "bpama.png", "subtitle" : "First place in state in BPA's Mobile Application compeition in Texas with BitWeather, an interactive weather app."}]
+  },
+  {
+  "imageName" : "cryc.png",
+  "info":[{"type" : "header", "value" : "Crowdery"},
+          {"type" : "text", "value" : "During my junior year, I was the first engineer at <a href='http://crowdery.com'>Crowdery</a>, a startup my friends and I created. Crowdery is a platform that enables brands to de-risk product designs before the production phase by crowd-sourcing customer votes and delivering demographic-specific analytics. I created it using a Ruby on Rails backend tied to a PostgreSQL database. Since creating Crowdery was my first experience starting a product from scratch, I learned the pros and cons of using client-side frameworks such as Backbone.js and the overhead of using ORM wrappers like ActiveRecord."},
+          {"type" : "image", "value" : "yc.png", "subtitle" : "Y Combinator is an American startup accelerator, started in March 2005. It provides seed money, advice, and connections at two three-month programs per year."},
+          {"type" : "text", "value" :"We applied and got in to <a href='http://ycombinator.com'>Y Combinator's</a> S'13 session, where I went to California for the summer. The experience was amazing, and I know I defintely want to return to the Bay Area as soon as possible. Unfortunately, at the end of the summer, we all unanimously decided to return school and turn the project over to the only employee that stayed behind."},
+          {"type" : "image", "value" : "crowdery.png", "subtitle" : "Crowdery"}]
+  },
+  {
+  "imageName" : "fortheon.png",
+  "info":[{"type" : "header", "value" : "Fortheon"},
+          {"type" : "text", "value" : "I'm currently the co-founder of <a href='http://fortheon.com'>Fortheon</a>, my latest project. Fortheon is a multi-language cloud application platform that allows users to deploy and scale their web applications effortlessly."},
+          {"type" : "image", "value" : "fr.png", "subtitle" : "Fortheon"},
+          {"type" : "text", "value" : "What makes Fortheon different from many of the current hosting solutions is that we offer our services for a much cheaper price, and we give our customers full control over their servers. My co-founder and I both handle the technical aspects while I also aid in user acquisition. Our plan is to work on Fortheon this summer in San Francisco."}]
+  },
+  {
+  "imageName" : "conclusion.png",
+  "info":[{"type" : "header", "value" : "Conclusion"},
+          {"type" : "text", "value" : "My PennApps 2014 hack inspired me to create this app. <a href='https://github.com/scribe-pennapps/ios'>Scribe</a>, allowed users to take a picture of a sketch of a website have it mapped out to Twitter Bootstrap elements to create a site on the spot just from a drawing. I was the iOS developer on the team, and due to time constraints, I wasn't able to do the image processing natively; I resorted to sending the image data to an OpenCV library on the server. With this app, I had the time to learn how to read in a buffer of raw pixel values and manipulate the final output. For some reason, I wasn't able to fix the color inversion in the picture that replaced the black pixels. I would love to have the opportunity to speak to Apple engineers to identify bugs in my image processing algorithm and make my app better. However, in the process of coming to my final idea, I went through several ideas and along the way I learned how to identify right angles of dark rectangles with cluster analysis, pick out keys on a keyboard (although this was difficult because I wasn’t able to train my app correctly” and manipulate input from the camera to translate into output.}]
+          }
+          ]
+  
