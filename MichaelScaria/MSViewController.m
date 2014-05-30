@@ -137,8 +137,7 @@ static inline BOOL BLACK_PIXEL (unsigned char *buffer,  unsigned long offset) {r
     [UIView animateWithDuration:.5 animations:^{
         _alteredView.alpha = 0;
         _overlayView.alpha = 1;
-    }completion:^(BOOL isCompleted){
-    }];
+    }completion:nil];
 }
 
 - (void)setUpOverlay {
